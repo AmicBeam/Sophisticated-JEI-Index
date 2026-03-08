@@ -1,6 +1,7 @@
 package com.sbjeiindex;
 
 import com.sbjeiindex.init.ModItems;
+import com.sbjeiindex.network.NetworkHandler;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -15,11 +16,22 @@ public class SBJEIIndex {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.ITEMS.register(modBus);
         modBus.addListener(this::addCreative);
+        NetworkHandler.register();
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(ModItems.JEI_INDEX_UPGRADE);
+        // 尝试将物品添加到Sophisticated Backpacks标签
+        try {
+            Class<?> creativeModeTabsClass = Class.forName("net.puffish.sophisticatedbackpacks.init.ModCreativeModeTabs");
+            Object backpacksTab = creativeModeTabsClass.getField("BACKPACKS").get(null);
+            if (event.getTab() == backpacksTab) {
+                event.accept(ModItems.JEI_INDEX_UPGRADE);
+            }
+        } catch (Exception e) {
+            // 如果Sophisticated Backpacks标签不存在，回退到INGREDIENTS标签
+            if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+                event.accept(ModItems.JEI_INDEX_UPGRADE);
+            }
         }
     }
 }
