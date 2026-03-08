@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="${neo_version_range}"
+loaderVersion="${forge_version_range}"
 license="MIT"
 
 [[mods]]
@@ -12,7 +12,7 @@ authors="SB JEI Index Contributors"
 [[dependencies.sophisticated_jei_index]]
 modId="forge"
 mandatory=true
-versionRange="${neo_version_range}"
+versionRange="${forge_version_range}"
 ordering="NONE"
 side="BOTH"
 
