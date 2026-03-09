@@ -1,4 +1,4 @@
 {
   "item.sophisticated_jei_index.jei_index_upgrade": "JEI Index Upgrade",
-  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "Allows JEI recipe transfer to use items from the first equipped backpack (chest slot first, then Curios)"
+  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "When using JEI recipe transfer, can and only can additionally pull items from the first backpack openable via Sophisticated Backpacks' B-key order"
 }

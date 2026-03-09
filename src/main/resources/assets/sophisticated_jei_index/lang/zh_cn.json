@@ -1,4 +1,4 @@
 {
   "item.sophisticated_jei_index.jei_index_upgrade": "JEI 索引升级",
-  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "使用 JEI 配方转移时，可从已装备的第一个背包中取材（优先胸甲槽，其次 Curios）"
+  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "使用 JEI 配方转移时，能且仅能额外从按 B 键规则能打开的第一个背包中取材"
 }
