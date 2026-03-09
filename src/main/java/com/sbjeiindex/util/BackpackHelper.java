@@ -129,7 +129,7 @@ public class BackpackHelper {
                 curiosGetCuriosInventoryMethod = null;
                 if (!curiosInitLogged) {
                     curiosInitLogged = true;
-                    LOGGER.debug("Curios is loaded but CuriosApi reflection init failed", e);
+                    LOGGER.warn("Curios is loaded but CuriosApi reflection init failed", e);
                 }
             }
             return curiosGetCuriosInventoryMethod;
