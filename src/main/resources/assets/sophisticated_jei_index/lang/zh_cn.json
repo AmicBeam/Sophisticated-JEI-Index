@@ -1,4 +1,4 @@
 {
   "item.sophisticated_jei_index.jei_index_upgrade": "JEI 索引升级",
-  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "在合成台或切石机中使用 JEI 转移配方时，可使用装备背包内的物品作为材料"
+  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "使用 JEI 配方转移时，可从已装备的第一个背包中取材（优先胸甲槽，其次 Curios）"
 }

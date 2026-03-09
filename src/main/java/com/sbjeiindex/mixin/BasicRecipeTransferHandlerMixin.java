@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +29,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +58,7 @@ public class BasicRecipeTransferHandlerMixin {
         boolean doTransfer,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
-        Object backpackWrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
+        IBackpackWrapper backpackWrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
         if (backpackWrapper == null) {
             return;
         }
@@ -104,21 +104,7 @@ public class BasicRecipeTransferHandlerMixin {
             return;
         }
 
-        IItemHandlerModifiable backpackHandler = null;
-        try {
-            Method getInventoryHandlerMethod = backpackWrapper.getClass().getMethod("getInventoryHandler");
-            Object inventoryHandler = getInventoryHandlerMethod.invoke(backpackWrapper);
-            if (inventoryHandler instanceof IItemHandlerModifiable h) {
-                backpackHandler = h;
-            }
-        } catch (Exception e) {
-            cir.setReturnValue(handlerHelper.createInternalError());
-            return;
-        }
-
-        if (backpackHandler == null) {
-            return;
-        }
+        IItemHandlerModifiable backpackHandler = backpackWrapper.getInventoryHandler();
 
         OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET);
         List<Slot> extendedInventorySlots = new ArrayList<>(inventorySlots.size() + backpackHandler.getSlots());

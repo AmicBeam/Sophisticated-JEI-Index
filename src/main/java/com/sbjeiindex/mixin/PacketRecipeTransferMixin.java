@@ -14,14 +14,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Mixin(value = PacketRecipeTransfer.class, remap = false)
 public class PacketRecipeTransferMixin {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     @Inject(method = "readPacketData", at = @At("HEAD"), cancellable = true, remap = false)
     private static void sbjeiindex_readPacketData(ServerPacketData data, CallbackInfoReturnable<CompletableFuture<Void>> cir) {
         ServerPacketContext context = data.context();
@@ -52,19 +56,11 @@ public class PacketRecipeTransferMixin {
             craftingSlots.add(slot);
         }
 
-        Object backpackWrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
-        IItemHandlerModifiable backpackHandler = null;
+        IBackpackWrapper backpackWrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
         OffsetItemHandlerModifiable offsetHandler = null;
         if (backpackWrapper != null) {
-            try {
-                Method getInventoryHandlerMethod = backpackWrapper.getClass().getMethod("getInventoryHandler");
-                Object inventoryHandler = getInventoryHandlerMethod.invoke(backpackWrapper);
-                if (inventoryHandler instanceof IItemHandlerModifiable h) {
-                    backpackHandler = h;
-                    offsetHandler = new OffsetItemHandlerModifiable(h, JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET);
-                }
-            } catch (Exception ignored) {
-            }
+            IItemHandlerModifiable h = backpackWrapper.getInventoryHandler();
+            offsetHandler = new OffsetItemHandlerModifiable(h, JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET);
         }
 
         int inventorySlotsSize = buf.readVarInt();
@@ -91,6 +87,7 @@ public class PacketRecipeTransferMixin {
         boolean requireCompleteSets = buf.readBoolean();
 
         if (hasBackpackSlotIds && offsetHandler == null) {
+            LOGGER.warn("Ignoring JEI recipe transfer: packet referenced backpack slots but no valid backpack was found for {}", player.getGameProfile().getName());
             cir.setReturnValue(CompletableFuture.completedFuture(null));
             return;
         }
