@@ -199,6 +199,7 @@ public class BackpackHelper {
 
     private static boolean hasJEIIndexUpgrade(IBackpackWrapper backpackWrapper) {
         try {
+            backpackWrapper.onContentsNbtUpdated();
             return !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
         } catch (Exception e) {
             LOGGER.warn("Error checking JEI index upgrade", e);

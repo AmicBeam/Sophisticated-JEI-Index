@@ -75,6 +75,7 @@ public class PacketRecipeTransferMixin {
                     continue;
                 }
                 Slot slot = new SlotItemHandler(offsetHandler, slotIndex, 0, 0);
+                slot.index = slotIndex;
                 inventorySlots.add(slot);
                 extraSlots.put(slotIndex, slot);
             } else {

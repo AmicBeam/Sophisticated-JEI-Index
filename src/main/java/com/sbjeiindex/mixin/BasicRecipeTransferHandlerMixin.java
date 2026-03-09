@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mixin(value = BasicRecipeTransferHandler.class, remap = false)
 public class BasicRecipeTransferHandlerMixin {
@@ -80,8 +82,8 @@ public class BasicRecipeTransferHandlerMixin {
         }
 
         List<Slot> craftingSlots = List.copyOf(transferInfo.getRecipeSlots(container, recipe));
-        List<Slot> inventorySlots = List.copyOf(transferInfo.getInventorySlots(container, recipe));
-        if (!BasicRecipeTransferHandler.validateTransferInfo(transferInfo, container, craftingSlots, inventorySlots, player)) {
+        List<Slot> inventorySlotsRaw = List.copyOf(transferInfo.getInventorySlots(container, recipe));
+        if (!BasicRecipeTransferHandler.validateTransferInfo(transferInfo, container, craftingSlots, inventorySlotsRaw, player)) {
             cir.setReturnValue(handlerHelper.createInternalError());
             return;
         }
@@ -92,17 +94,10 @@ public class BasicRecipeTransferHandlerMixin {
             return;
         }
 
-        BasicRecipeTransferHandler.InventoryState inventoryState = BasicRecipeTransferHandler.getInventoryState(
-            craftingSlots,
-            inventorySlots,
-            player,
-            container,
-            transferInfo
-        );
-        if (inventoryState == null) {
-            cir.setReturnValue(handlerHelper.createInternalError());
-            return;
-        }
+        Set<Integer> craftingSlotIndexes = craftingSlots.stream().map(s -> s.index).collect(Collectors.toSet());
+        List<Slot> inventorySlots = inventorySlotsRaw.stream()
+            .filter(s -> !craftingSlotIndexes.contains(s.index))
+            .toList();
 
         IItemHandlerModifiable backpackHandler = backpackWrapper.getInventoryHandler();
 
@@ -111,11 +106,45 @@ public class BasicRecipeTransferHandlerMixin {
         extendedInventorySlots.addAll(inventorySlots);
 
         Map<Integer, Slot> extraSlots = new HashMap<>();
-        Map<Slot, net.minecraft.world.item.ItemStack> availableItemStacks = new HashMap<>(inventoryState.availableItemStacks());
-        int emptySlots = inventoryState.emptySlotCount();
+        Map<Slot, net.minecraft.world.item.ItemStack> availableItemStacks = new HashMap<>();
+
+        int filledCraftSlotCount = 0;
+        for (Slot slot : craftingSlots) {
+            net.minecraft.world.item.ItemStack stack = slot.getItem();
+            if (!stack.isEmpty()) {
+                if (!slot.mayPickup(player)) {
+                    cir.setReturnValue(handlerHelper.createInternalError());
+                    return;
+                }
+                if (slot.mayPlace(stack)) {
+                    filledCraftSlotCount++;
+                    if (slot.allowModification(player)) {
+                        availableItemStacks.put(slot, stack.copy());
+                    }
+                }
+            }
+        }
+
+        int emptySlots = 0;
+        for (Slot slot : inventorySlots) {
+            net.minecraft.world.item.ItemStack stack = slot.getItem();
+            if (!stack.isEmpty()) {
+                if (!slot.mayPickup(player)) {
+                    cir.setReturnValue(handlerHelper.createInternalError());
+                    return;
+                }
+                if (slot.allowModification(player)) {
+                    availableItemStacks.put(slot, stack.copy());
+                }
+            } else {
+                emptySlots++;
+            }
+        }
+
         for (int i = 0; i < backpackHandler.getSlots(); i++) {
             int slotId = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + i;
             Slot slot = new SlotItemHandler(offsetHandler, slotId, 0, 0);
+            slot.index = slotId;
             extendedInventorySlots.add(slot);
             extraSlots.put(slotId, slot);
 
@@ -128,7 +157,7 @@ public class BasicRecipeTransferHandlerMixin {
         }
 
         int inputCount = inputItemSlotViews.size();
-        if (inventoryState.filledCraftSlotCount() - inputCount > emptySlots) {
+        if (filledCraftSlotCount - inputCount > emptySlots) {
             Component message = Component.translatable("jei.tooltip.error.recipe.transfer.inventory.full");
             cir.setReturnValue(handlerHelper.createUserErrorWithTooltip(message));
             return;
