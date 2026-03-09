@@ -1,4 +1,4 @@
 {
   "item.sophisticated_jei_index.jei_index_upgrade": "JEI 索引升级",
-  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "使用 JEI 配方转移时，能且仅能额外从按 B 键规则能打开的第一个背包中取材"
+  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "使用 JEI 配方转移时，取第一顺位且已启用该升级的背包作为材料来源"
 }

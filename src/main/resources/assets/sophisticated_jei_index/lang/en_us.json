@@ -1,4 +1,4 @@
 {
   "item.sophisticated_jei_index.jei_index_upgrade": "JEI Index Upgrade",
-  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "When using JEI recipe transfer, can and only can additionally pull items from the first backpack openable via Sophisticated Backpacks' B-key order"
+  "item.sophisticated_jei_index.jei_index_upgrade.tooltip": "Uses the first-priority backpack with this upgrade enabled as a recipe transfer source"
 }
