@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class BackpackHelper {
@@ -38,7 +40,83 @@ public class BackpackHelper {
     @Nullable
     private static Object getBackpackFromCurios(Player player) {
         LOGGER.info("Checking Curios slot for backpack");
-        // 暂时返回 null，需要根据实际情况实现
+        try {
+            Class<?> curiosApiClass = Class.forName("top.theillusivec4.curios.api.CuriosApi");
+            Method getCuriosInventoryMethod = curiosApiClass.getMethod("getCuriosInventory", Player.class);
+            Object curiosInventoryOptional = getCuriosInventoryMethod.invoke(null, player);
+
+            if (!(curiosInventoryOptional instanceof Optional<?> optional) || optional.isEmpty()) {
+                return null;
+            }
+
+            Object curiosInventory = optional.get();
+
+            Method getCuriosMethod;
+            try {
+                getCuriosMethod = curiosInventory.getClass().getMethod("getCurios");
+            } catch (NoSuchMethodException e) {
+                LOGGER.info("Curios inventory does not have getCurios method");
+                return null;
+            }
+
+            Object curiosMapObj = getCuriosMethod.invoke(curiosInventory);
+            if (!(curiosMapObj instanceof Map<?, ?> curiosMap) || curiosMap.isEmpty()) {
+                return null;
+            }
+
+            List<String> slotTypes = curiosMap.keySet().stream()
+                .map(String::valueOf)
+                .sorted()
+                .toList();
+
+            for (String slotType : slotTypes) {
+                Object handler = curiosMap.get(slotType);
+                if (handler == null) {
+                    continue;
+                }
+
+                Object stacksHandler = null;
+                for (String methodName : List.of("getStacks", "getStacksHandler", "getInventory")) {
+                    try {
+                        Method m = handler.getClass().getMethod(methodName);
+                        stacksHandler = m.invoke(handler);
+                        break;
+                    } catch (NoSuchMethodException ignored) {
+                    }
+                }
+
+                if (stacksHandler == null) {
+                    continue;
+                }
+
+                Method getSlotsMethod;
+                Method getStackInSlotMethod;
+                try {
+                    getSlotsMethod = stacksHandler.getClass().getMethod("getSlots");
+                    getStackInSlotMethod = stacksHandler.getClass().getMethod("getStackInSlot", int.class);
+                } catch (NoSuchMethodException e) {
+                    continue;
+                }
+
+                int slots = ((Number) getSlotsMethod.invoke(stacksHandler)).intValue();
+                for (int i = 0; i < slots; i++) {
+                    Object stackObj = getStackInSlotMethod.invoke(stacksHandler, i);
+                    if (stackObj instanceof ItemStack stack && !stack.isEmpty()) {
+                        Object wrapper = getBackpackWrapperFromStack(stack);
+                        if (wrapper != null && hasJEIIndexUpgrade(wrapper)) {
+                            return wrapper;
+                        }
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (Exception e) {
+            LOGGER.error("Error checking Curios for backpack: {}", e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
         return null;
     }
 
@@ -52,6 +130,11 @@ public class BackpackHelper {
             return null;
         }
 
+        return getBackpackWrapperFromStack(chestStack);
+    }
+
+    @Nullable
+    private static Object getBackpackWrapperFromStack(ItemStack stack) {
         try {
             // 使用反射获取 CapabilityBackpackWrapper
             Class<?> capabilityBackpackWrapperClass = Class.forName("net.p3pp3rf1y.sophisticatedbackpacks.api.CapabilityBackpackWrapper");
@@ -66,7 +149,7 @@ public class BackpackHelper {
             LOGGER.info("Found getCapability method");
 
             // 调用getCapability方法
-            Object result = getCapabilityMethod.invoke(chestStack, backpackWrapperCapability, null);
+            Object result = getCapabilityMethod.invoke(stack, backpackWrapperCapability, null);
             LOGGER.info("getCapability result type: {}", result != null ? result.getClass().getName() : "null");
 
             // 检查结果是否是 LazyOptional

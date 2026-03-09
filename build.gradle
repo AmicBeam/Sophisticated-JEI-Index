@@ -53,6 +53,9 @@ dependencies {
     compileOnly fg.deobf("curse.maven:sophisticated-core-${sc_curse_id}:${sc_file_id}")
     compileOnly fg.deobf("curse.maven:sophisticated-backpacks-${sb_curse_id}:${sb_file_id}")
     compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge:${jei_version}")
+
+    compileOnly "org.spongepowered:mixin:0.8.5"
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 }
 
 tasks.named('jar', Jar).configure {
@@ -61,7 +64,8 @@ tasks.named('jar', Jar).configure {
                 'Specification-Title'     : mod_id,
                 'Specification-Version'   : '1',
                 'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.version
+                'Implementation-Version'  : project.version,
+                'MixinConfigs'            : "${mod_id}.mixins.json"
         ])
     }
 }

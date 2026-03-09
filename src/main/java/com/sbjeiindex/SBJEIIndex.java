@@ -1,7 +1,6 @@
 package com.sbjeiindex;
 
 import com.sbjeiindex.init.ModItems;
-import com.sbjeiindex.network.NetworkHandler;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -16,7 +15,6 @@ public class SBJEIIndex {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.ITEMS.register(modBus);
         modBus.addListener(this::addCreative);
-        NetworkHandler.register();
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
