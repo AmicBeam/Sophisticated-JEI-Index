@@ -6,8 +6,10 @@ license="MIT"
 modId="sophisticated_jei_index"
 version="${mod_version}"
 displayName="Sophisticated JEI Index"
+logoFile="logo.png"
 description='''${mod_description}'''
-authors="SB JEI Index Contributors"
+credits="JEI recipe transfer integration for Sophisticated Backpacks"
+authors="amicbeam"
 
 [[dependencies.sophisticated_jei_index]]
 modId="forge"

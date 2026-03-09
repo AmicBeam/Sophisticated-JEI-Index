@@ -70,9 +70,11 @@ public class PacketRecipeTransferMixin {
         int inventorySlotsSize = buf.readVarInt();
         List<Slot> inventorySlots = new ArrayList<>();
         Map<Integer, Slot> extraSlots = new HashMap<>();
+        boolean hasBackpackSlotIds = false;
         for (int i = 0; i < inventorySlotsSize; i++) {
             int slotIndex = buf.readVarInt();
             if (slotIndex >= JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET) {
+                hasBackpackSlotIds = true;
                 if (offsetHandler == null) {
                     continue;
                 }
@@ -87,6 +89,11 @@ public class PacketRecipeTransferMixin {
 
         boolean maxTransfer = buf.readBoolean();
         boolean requireCompleteSets = buf.readBoolean();
+
+        if (hasBackpackSlotIds && offsetHandler == null) {
+            cir.setReturnValue(CompletableFuture.completedFuture(null));
+            return;
+        }
 
         MinecraftServer server = player.server;
         CompletableFuture<Void> future = server.submit(() -> {
