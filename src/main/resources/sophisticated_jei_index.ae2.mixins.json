@@ -1,0 +1,10 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "package": "com.sbjeiindex.mixin",
+  "mixins": [
+    "ae2.FillCraftingGridFromRecipePacketMixin"
+  ]
+}
+

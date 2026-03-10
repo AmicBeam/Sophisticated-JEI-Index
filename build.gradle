@@ -52,6 +52,9 @@ dependencies {
 
     compileOnly fg.deobf("curse.maven:sophisticated-core-${sc_curse_id}:${sc_file_id}")
     compileOnly fg.deobf("curse.maven:sophisticated-backpacks-${sb_curse_id}:${sb_file_id}")
+    compileOnly fg.deobf("curse.maven:applied-energistics-2-${ae2_curse_id}:${ae2_file_id}")
+    compileOnly fg.deobf("curse.maven:refinedstorage-${rs_curse_id}:${rs_file_id}")
+    compileOnly fg.deobf("curse.maven:toms-storage-${ts_curse_id}:${ts_file_id}")
     compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge:${jei_version}")
 
     compileOnly "org.spongepowered:mixin:0.8.5"
@@ -65,7 +68,7 @@ tasks.named('jar', Jar).configure {
                 'Specification-Version'   : '1',
                 'Implementation-Title'    : project.name,
                 'Implementation-Version'  : project.version,
-                'MixinConfigs'            : "${mod_id}.mixins.json"
+                'MixinConfigs'            : "${mod_id}.mixins.json,${mod_id}.ae2.mixins.json,${mod_id}.rs.mixins.json,${mod_id}.ts.mixins.json"
         ])
     }
 }

@@ -2,13 +2,13 @@
 
 **Read this in other languages: [简体中文](README_CN.md)**
 
-Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe transfer can pull ingredients from the first backpack in the selection order that has this upgrade enabled (same order as Sophisticated Backpacks' B-key logic), in addition to the player inventory.
+Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe transfer can pull ingredients from the first backpack in the selection order that has this upgrade enabled, in addition to the player inventory.
 
 ## Features
 
-- ✅ Reuses JEI's built-in recipe transfer logic (works with any JEI transfer scenario)
-- ✅ Extends ingredient source to the first backpack in the selection order with this upgrade enabled
-- ✅ Priority follows Sophisticated Backpacks' inventory handler order (armor/offhand/main, plus compat handlers like Curios if installed)
+- ✅ Compatible with JEI native recipe transfer scenarios
+- ✅ Uses the first enabled backpack in the selection order as an extra ingredient source
+- ✅ Also supports the crafting terminals of the following mods (priority: network → player inventory → first enabled backpack): AE2, Refined Storage, Tom's Storage
 - ✅ Supports shift-click max transfer and JEI complete-set semantics
 
 ## Requirements
@@ -36,7 +36,8 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 ## Notes
 
 - JEI recipe transfer is a client action that sends a request to the server. For full functionality in multiplayer, JEI must be present on the server as well.
-- The first backpack is resolved using the same order as Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.
+- The backpack selection order follows Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.
+- EMI support is not guaranteed.
 
 ## License
 
