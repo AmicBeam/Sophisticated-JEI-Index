@@ -15,9 +15,9 @@
 
 - Minecraft 1.20.1
 - Forge 47.x
-- Sophisticated Core（Sophisticated Backpacks 的前置）
-- Sophisticated Backpacks
-- JEI（Just Enough Items）
+- Sophisticated Core 1.20.1-1.3.6+（Sophisticated Backpacks 的前置）
+- Sophisticated Backpacks 3.24+
+- JEI 15.0+（Just Enough Items）
 - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
 
 ## 安装

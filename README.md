@@ -15,9 +15,9 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 
 - Minecraft 1.20.1
 - Forge 47.x
-- Sophisticated Core (required by Sophisticated Backpacks)
-- Sophisticated Backpacks
-- JEI (Just Enough Items)
+- Sophisticated Core 1.20.1-1.3.6+ (required by Sophisticated Backpacks)
+- Sophisticated Backpacks 3.24+
+- JEI 15.0+ (Just Enough Items)
 - Curios (optional, only needed if you want Curios slot support)
 
 ## Installation
