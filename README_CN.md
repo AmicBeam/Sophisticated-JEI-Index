@@ -2,7 +2,7 @@
 
 **其他语言版本： [English](README.md)**
 
-为 Sophisticated Backpacks 添加一个 JEI 索引升级（JEI Index Upgrade）。安装后，JEI 的配方转移会在考虑玩家物品栏的同时，额外从“按顺位找到的第一个启用该升级的背包”中取材料。
+为 Sophisticated Backpacks 添加一个 JEI 索引升级（JEI Index Upgrade）。安装后，JEI 的配方转移会在考虑玩家物品栏的同时，额外从“按顺位找到的第一个启用该升级的背包”中取材料（顺位规则与 Sophisticated Backpacks 的 B 键一致）。
 
 ## 功能
 

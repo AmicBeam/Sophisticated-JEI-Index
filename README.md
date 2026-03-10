@@ -2,7 +2,7 @@
 
 **Read this in other languages: [简体中文](README_CN.md)**
 
-Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe transfer can pull ingredients from the first backpack in the selection order that has this upgrade enabled, in addition to the player inventory.
+Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe transfer can pull ingredients from the first backpack in the selection order that has this upgrade enabled (same order as Sophisticated Backpacks' B-key logic), in addition to the player inventory.
 
 ## Features
 
