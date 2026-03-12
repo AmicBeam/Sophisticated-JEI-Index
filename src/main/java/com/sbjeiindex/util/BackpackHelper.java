@@ -1,5 +1,6 @@
 package com.sbjeiindex.util;
 
+import com.sbjeiindex.config.SBJEIIndexConfig;
 import com.sbjeiindex.upgrade.JEIIndexUpgradeItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +21,7 @@ public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static List<IBackpackWrapper> getEquippedBackpacksWithJEIIndexUpgrade(Player player) {
+        int maxScanned = SBJEIIndexConfig.maxEnabledBackpacksScanned.get();
         List<IBackpackWrapper> results = new ArrayList<>();
         PlayerInventoryProvider.get().runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
             IBackpackWrapper wrapper = getBackpackWrapperFromStack(backpack);
@@ -28,6 +30,9 @@ public class BackpackHelper {
             }
             if (hasJEIIndexUpgrade(wrapper)) {
                 results.add(wrapper);
+                if (maxScanned > 0 && results.size() >= maxScanned) {
+                    return true;
+                }
             }
             return false;
         });

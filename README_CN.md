@@ -37,6 +37,8 @@
 
 - JEI 配方转移需要向服务端发送请求。多人游戏中为了完整功能，服务端也需要安装 JEI。
 - 背包的判定顺序与 Sophisticated Backpacks 的 B 键逻辑一致，仅筛选启用该升级的背包。
+- 配置项：`maxEnabledBackpacksScanned`（common 配置），用于限制同一个玩家最多检索多少个启用该升级的背包，0 表示不限制。
+- 不支持将嵌套升级（如 Inception Upgrade）打开的内层背包作为材料来源。
 - 不保证 EMI 环境下生效。
 
 ## 许可证
