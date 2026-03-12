@@ -8,7 +8,7 @@
 
 - ✅ 兼容 JEI 原生配方转移场景
 - ✅ 材料来源扩展到顺位中所有启用该升级的背包
-- ✅ 同时支持以下 Mod 的合成终端（优先级：网络取材 → 玩家物品栏 → 按顺位遍历启用该升级的背包）：AE2、Refined Storage、Tom's Storage
+- ✅ 同时支持以下 Mod 的合成终端（优先级：网络取材 → 玩家物品栏 → 按顺位遍历启用该升级的背包）：AE2、Refined Storage、Tom's Storage、Beyond Dimensions
 - ✅ 支持 Shift 最大转移与 JEI 的完整套数/回滚语义
 
 ## 依赖

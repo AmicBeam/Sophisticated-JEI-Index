@@ -8,7 +8,7 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 
 - ✅ Compatible with JEI native recipe transfer scenarios
 - ✅ Uses enabled backpacks in the selection order as extra ingredient sources
-- ✅ Also supports the crafting terminals of the following mods (priority: network → player inventory → enabled backpacks in order): AE2, Refined Storage, Tom's Storage
+- ✅ Also supports the crafting terminals of the following mods (priority: network → player inventory → enabled backpacks in order): AE2, Refined Storage, Tom's Storage, Beyond Dimensions
 - ✅ Supports shift-click max transfer and JEI complete-set semantics
 
 ## Requirements
