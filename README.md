@@ -10,6 +10,7 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 - ✅ Uses enabled backpacks in the selection order as extra ingredient sources
 - ✅ Also supports the crafting terminals of the following mods (priority: network → player inventory → enabled backpacks in order): AE2, Refined Storage, Tom's Storage, Beyond Dimensions
 - ✅ Supports shift-click max transfer and JEI complete-set semantics
+- ✅ Compatible with EMI recipe fill and recipe tree quick-craft (requires EMI on the server for multiplayer)
 
 ## Requirements
 
@@ -18,6 +19,7 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 - Sophisticated Core 1.20.1-1.3.6+ (required by Sophisticated Backpacks)
 - Sophisticated Backpacks 3.24+
 - JEI 15.0+ (Just Enough Items)
+- EMI (optional)
 - Curios (optional, only needed if you want Curios slot support)
 
 ## Installation
@@ -36,10 +38,11 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 ## Notes
 
 - JEI recipe transfer is a client action that sends a request to the server. For full functionality in multiplayer, JEI must be present on the server as well.
+- EMI recipe fill is a client action that sends a request to the server. For full functionality in multiplayer, EMI must be present on the server as well.
 - The backpack selection order follows Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.
 - Config option: `maxEnabledBackpacksScanned` (common config). Limits how many enabled backpacks are scanned per player. 0 means unlimited.
+- Config option: `enableEmi` (common config). Enables EMI integration.
 - Nested backpacks (e.g. via Inception Upgrade) are not supported as ingredient sources.
-- EMI support is not guaranteed.
 
 ## License
 

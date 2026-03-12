@@ -10,6 +10,7 @@
 - ✅ 材料来源扩展到顺位中所有启用该升级的背包
 - ✅ 同时支持以下 Mod 的合成终端（优先级：网络取材 → 玩家物品栏 → 按顺位遍历启用该升级的背包）：AE2、Refined Storage、Tom's Storage、Beyond Dimensions
 - ✅ 支持 Shift 最大转移与 JEI 的完整套数/回滚语义
+- ✅ 兼容 EMI 的配方转移与配方树快捷合成（多人需要服务端也安装 EMI）
 
 ## 依赖
 
@@ -18,6 +19,7 @@
 - Sophisticated Core 1.20.1-1.3.6+（Sophisticated Backpacks 的前置）
 - Sophisticated Backpacks 3.24+
 - JEI 15.0+（Just Enough Items）
+- EMI（可选）
 - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
 
 ## 安装
@@ -36,10 +38,11 @@
 ## 说明
 
 - JEI 配方转移需要向服务端发送请求。多人游戏中为了完整功能，服务端也需要安装 JEI。
+- EMI 配方转移需要向服务端发送请求。多人游戏中为了完整功能，服务端也需要安装 EMI。
 - 背包的判定顺序与 Sophisticated Backpacks 的 B 键逻辑一致，仅筛选启用该升级的背包。
 - 配置项：`maxEnabledBackpacksScanned`（common 配置），用于限制同一个玩家最多检索多少个启用该升级的背包，0 表示不限制。
+- 配置项：`enableEmi`（common 配置），用于控制是否启用 EMI 兼容。
 - 不支持将嵌套升级（如 Inception Upgrade）打开的内层背包作为材料来源。
-- 不保证 EMI 环境下生效。
 
 ## 许可证
 
