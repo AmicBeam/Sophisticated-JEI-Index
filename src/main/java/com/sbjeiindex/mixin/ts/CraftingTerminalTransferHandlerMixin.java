@@ -1,5 +1,6 @@
 package com.sbjeiindex.mixin.ts;
 
+import com.sbjeiindex.util.BackpackExtraction;
 import com.sbjeiindex.util.BackpackHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
@@ -12,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -59,8 +59,7 @@ public class CraftingTerminalTransferHandlerMixin {
             stored = new HashSet<>(c);
         }
 
-        IBackpackWrapper backpackWrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
-        InventoryHandler backpack = backpackWrapper == null ? null : backpackWrapper.getInventoryHandler();
+        List<InventoryHandler> backpacks = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
 
         List<IRecipeSlotView> missing = new ArrayList<>();
         for (IRecipeSlotView view : recipeSlots.getSlotViews()) {
@@ -75,7 +74,7 @@ public class CraftingTerminalTransferHandlerMixin {
 
             boolean found = hasInPlayerInventory(player, templates)
                 || hasInTerminalStorage(stored, templates)
-                || hasInBackpack(backpack, templates);
+                || BackpackExtraction.containsAnyTemplateMatch(backpacks, templates);
 
             if (!found) {
                 missing.add(view);
@@ -139,26 +138,6 @@ public class CraftingTerminalTransferHandlerMixin {
         return false;
     }
 
-    private static boolean hasInBackpack(InventoryHandler backpack, ItemStack[] templates) {
-        if (backpack == null) {
-            return false;
-        }
-
-        int slots = backpack.getSlots();
-        for (int i = 0; i < slots; i++) {
-            ItemStack stack = backpack.getStackInSlot(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-            for (ItemStack template : templates) {
-                if (template != null && !template.isEmpty() && ItemStack.isSameItemSameTags(stack, template)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private record CosmeticError(IRecipeTransferError parent) implements IRecipeTransferError {
         @Override
         public Type getType() {
@@ -171,4 +150,3 @@ public class CraftingTerminalTransferHandlerMixin {
         }
     }
 }
-

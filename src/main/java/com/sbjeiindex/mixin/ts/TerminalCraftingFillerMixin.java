@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,12 +40,10 @@ public class TerminalCraftingFillerMixin {
             return;
         }
 
-        IBackpackWrapper wrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
-        if (wrapper == null) {
+        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
+        if (handlers.isEmpty()) {
             return;
         }
-
-        InventoryHandler handler = wrapper.getInventoryHandler();
 
         Object craftingInvObj;
         try {
@@ -76,7 +73,7 @@ public class TerminalCraftingFillerMixin {
                 continue;
             }
 
-            ItemStack extracted = BackpackExtraction.extractIngredient(handler, ing);
+            ItemStack extracted = BackpackExtraction.extractIngredient(handlers, ing);
             if (extracted.isEmpty()) {
                 continue;
             }

@@ -5,13 +5,14 @@ import com.sbjeiindex.util.BackpackExtraction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 @Mixin(targets = "com.refinedmods.refinedstorage.apiimpl.network.grid.CraftingGridBehavior", remap = false)
 public class CraftingGridBehaviorMixin {
@@ -54,12 +55,10 @@ public class CraftingGridBehaviorMixin {
             return;
         }
 
-        IBackpackWrapper wrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
-        if (wrapper == null) {
+        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
+        if (handlers.isEmpty()) {
             return;
         }
-
-        InventoryHandler handler = wrapper.getInventoryHandler();
         int matrixSlots = Math.min(matrix.getContainerSize(), recipe.length);
 
         for (int i = 0; i < matrixSlots; i++) {
@@ -71,7 +70,7 @@ public class CraftingGridBehaviorMixin {
                 continue;
             }
 
-            ItemStack extracted = BackpackExtraction.extractFirstTemplateMatch(handler, possibilities);
+            ItemStack extracted = BackpackExtraction.extractFirstTemplateMatch(handlers, possibilities);
             if (!extracted.isEmpty()) {
                 matrix.setItem(i, extracted);
             }

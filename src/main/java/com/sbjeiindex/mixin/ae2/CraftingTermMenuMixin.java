@@ -5,7 +5,6 @@ import com.sbjeiindex.util.BackpackHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.lang.reflect.Constructor;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,13 +40,11 @@ public class CraftingTermMenuMixin {
         }
 
         Player player = playerInventory.player;
-        IBackpackWrapper wrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
-        if (wrapper == null) {
+        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
+        if (handlers.isEmpty()) {
             return;
         }
-
-        InventoryHandler handler = wrapper.getInventoryHandler();
-        int[] reserved = new int[handler.getSlots()];
+        List<int[]> reserved = BackpackExtraction.createReservedCounts(handlers);
         Set<Integer> newMissing = missingSlots == null ? new HashSet<>() : new HashSet<>(missingSlots);
         Set<Integer> newCraftable = craftableSlots == null ? new HashSet<>() : new HashSet<>(craftableSlots);
 
@@ -59,7 +57,7 @@ public class CraftingTermMenuMixin {
             if (ingredient == null || ingredient.isEmpty()) {
                 continue;
             }
-            if (BackpackExtraction.reserveIngredient(handler, reserved, ingredient)) {
+            if (BackpackExtraction.reserveIngredient(handlers, reserved, ingredient)) {
                 newMissing.remove(key);
                 newCraftable.remove(key);
             }
@@ -88,4 +86,3 @@ public class CraftingTermMenuMixin {
         return null;
     }
 }
-

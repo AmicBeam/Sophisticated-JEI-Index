@@ -20,7 +20,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,8 +59,8 @@ public class BasicRecipeTransferHandlerMixin {
         boolean doTransfer,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
-        IBackpackWrapper backpackWrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
-        if (backpackWrapper == null) {
+        List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+        if (backpackHandlers.isEmpty()) {
             return;
         }
 
@@ -99,10 +98,12 @@ public class BasicRecipeTransferHandlerMixin {
             .filter(s -> !craftingSlotIndexes.contains(s.index))
             .toList();
 
-        IItemHandlerModifiable backpackHandler = backpackWrapper.getInventoryHandler();
+        int backpackSlotCount = 0;
+        for (IItemHandlerModifiable handler : backpackHandlers) {
+            backpackSlotCount += handler.getSlots();
+        }
 
-        OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET);
-        List<Slot> extendedInventorySlots = new ArrayList<>(inventorySlots.size() + backpackHandler.getSlots());
+        List<Slot> extendedInventorySlots = new ArrayList<>(inventorySlots.size() + backpackSlotCount);
         extendedInventorySlots.addAll(inventorySlots);
 
         Map<Integer, Slot> extraSlots = new HashMap<>();
@@ -141,18 +142,24 @@ public class BasicRecipeTransferHandlerMixin {
             }
         }
 
-        for (int i = 0; i < backpackHandler.getSlots(); i++) {
-            int slotId = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + i;
-            Slot slot = new SlotItemHandler(offsetHandler, slotId, 0, 0);
-            slot.index = slotId;
-            extendedInventorySlots.add(slot);
-            extraSlots.put(slotId, slot);
+        for (int backpackIndex = 0; backpackIndex < backpackHandlers.size(); backpackIndex++) {
+            IItemHandlerModifiable backpackHandler = backpackHandlers.get(backpackIndex);
+            int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+            OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 
-            net.minecraft.world.item.ItemStack stack = offsetHandler.getStackInSlot(slotId);
-            if (!stack.isEmpty()) {
-                availableItemStacks.put(slot, stack.copy());
-            } else {
-                emptySlots++;
+            for (int i = 0; i < backpackHandler.getSlots(); i++) {
+                int slotId = baseOffset + i;
+                Slot slot = new SlotItemHandler(offsetHandler, slotId, 0, 0);
+                slot.index = slotId;
+                extendedInventorySlots.add(slot);
+                extraSlots.put(slotId, slot);
+
+                net.minecraft.world.item.ItemStack stack = offsetHandler.getStackInSlot(slotId);
+                if (!stack.isEmpty()) {
+                    availableItemStacks.put(slot, stack.copy());
+                } else {
+                    emptySlots++;
+                }
             }
         }
 

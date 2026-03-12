@@ -5,7 +5,6 @@ import com.sbjeiindex.util.BackpackHelper;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,13 +24,11 @@ public class IngredientTrackerMixin {
             return;
         }
 
-        IBackpackWrapper wrapper = BackpackHelper.getEquippedBackpackWithJEIIndexUpgrade(player);
-        if (wrapper == null) {
+        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
+        if (handlers.isEmpty()) {
             return;
         }
-
-        InventoryHandler handler = wrapper.getInventoryHandler();
-        int[] reserved = new int[handler.getSlots()];
+        List<int[]> reserved = BackpackExtraction.createReservedCounts(handlers);
 
         List<?> ingredients = getIngredients(ingredientList);
         if (ingredients == null || ingredients.isEmpty()) {
@@ -54,7 +51,10 @@ public class IngredientTrackerMixin {
                 continue;
             }
 
-            while (missing > 0 && BackpackExtraction.reserveFirstTemplateMatch(handler, reserved, templates)) {
+            while (missing > 0) {
+                if (!BackpackExtraction.reserveFirstTemplateMatch(handlers, reserved, templates)) {
+                    break;
+                }
                 invokeVoid(ingredient, "fulfill", int.class, 1);
                 missing--;
             }
@@ -99,4 +99,3 @@ public class IngredientTrackerMixin {
         }
     }
 }
-
