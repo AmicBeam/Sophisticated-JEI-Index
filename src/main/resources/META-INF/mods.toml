@@ -59,3 +59,10 @@ mandatory=false
 versionRange="[0,)"
 ordering="AFTER"
 side="BOTH"
+
+[[dependencies.sophisticated_jei_index]]
+modId="beyonddimensions"
+mandatory=false
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
