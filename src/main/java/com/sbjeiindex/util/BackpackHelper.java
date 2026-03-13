@@ -25,7 +25,7 @@ import java.util.WeakHashMap;
 
 public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Map<IBackpackWrapper, Boolean> UPGRADE_REFRESH_ATTEMPTED = new WeakHashMap<>();
+    private static final Map<IBackpackWrapper, Byte> UPGRADE_REFRESH_STATE = new WeakHashMap<>();
 
     public static List<IBackpackWrapper> getEquippedBackpacksWithJEIIndexUpgrade(Player player) {
         int maxScanned = SBJEIIndexConfig.maxEnabledBackpacksScanned.get();
@@ -122,11 +122,20 @@ public class BackpackHelper {
                 return true;
             }
 
-            if (UPGRADE_REFRESH_ATTEMPTED.putIfAbsent(backpackWrapper, Boolean.TRUE) == null) {
+            byte state = UPGRADE_REFRESH_STATE.getOrDefault(backpackWrapper, (byte) 0);
+            if ((state & 1) == 0) {
+                UPGRADE_REFRESH_STATE.put(backpackWrapper, (byte) (state | 1));
                 backpackWrapper.onContentsNbtUpdated();
-                return !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
+                boolean detected = !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
+                if (!detected) {
+                    UPGRADE_REFRESH_STATE.put(backpackWrapper, (byte) (state | 1 | 2));
+                }
+                return detected;
             }
 
+            if ((state & 2) == 0) {
+                UPGRADE_REFRESH_STATE.put(backpackWrapper, (byte) (state | 2));
+            }
             return false;
         } catch (Exception e) {
             LOGGER.warn("Error checking JEI index upgrade", e);
