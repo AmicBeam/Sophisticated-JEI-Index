@@ -41,7 +41,6 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 - EMI recipe fill is a client action that sends a request to the server. For full functionality in multiplayer, EMI must be present on the server as well.
 - The backpack selection order follows Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.
 - Config option: `maxEnabledBackpacksScanned` (common config). Limits how many enabled backpacks are scanned per player. 0 means unlimited.
-- Config option: `enableEmi` (common config). Enables EMI integration.
 - Nested backpacks (e.g. via Inception Upgrade) are not supported as ingredient sources.
 
 ## License

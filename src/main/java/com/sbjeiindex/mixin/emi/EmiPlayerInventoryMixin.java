@@ -1,7 +1,6 @@
 package com.sbjeiindex.mixin.emi;
 
 import com.sbjeiindex.util.BackpackHelper;
-import com.sbjeiindex.config.SBJEIIndexConfig;
 import dev.emi.emi.api.recipe.EmiPlayerInventory;
 import dev.emi.emi.platform.EmiClient;
 import net.minecraft.client.Minecraft;
@@ -25,27 +24,32 @@ public abstract class EmiPlayerInventoryMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/player/Player;)V", at = @At("TAIL"))
     private void sbjeiindex_addBackpackStacks(Player player, CallbackInfo ci) {
-        if (!EmiClient.onServer || !SBJEIIndexConfig.enableEmi.get()) {
+        if (!EmiClient.onServer) {
             return;
         }
-        sbjeiindex_addFromBackpacks(player);
+        IItemHandlerModifiable visible = BackpackHelper.getVisibleBackpackItemHandler(player.containerMenu);
+        sbjeiindex_addFromBackpacks(player, visible);
     }
 
     @Inject(method = "<init>(Ljava/util/List;)V", at = @At("TAIL"))
     private void sbjeiindex_addBackpackStacksFromClientPlayer(List<?> stacks, CallbackInfo ci) {
-        if (!EmiClient.onServer || !SBJEIIndexConfig.enableEmi.get()) {
+        if (!EmiClient.onServer) {
             return;
         }
         Player player = Minecraft.getInstance().player;
         if (player == null) {
             return;
         }
-        sbjeiindex_addFromBackpacks(player);
+        IItemHandlerModifiable visible = BackpackHelper.getVisibleBackpackItemHandler(player.containerMenu);
+        sbjeiindex_addFromBackpacks(player, visible);
     }
 
-    private void sbjeiindex_addFromBackpacks(Player player) {
+    private void sbjeiindex_addFromBackpacks(Player player, IItemHandlerModifiable visibleBackpackHandler) {
         List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         for (IItemHandlerModifiable handler : backpackHandlers) {
+            if (handler == visibleBackpackHandler) {
+                continue;
+            }
             for (int i = 0; i < handler.getSlots(); i++) {
                 ItemStack stack = handler.getStackInSlot(i);
                 if (!stack.isEmpty()) {

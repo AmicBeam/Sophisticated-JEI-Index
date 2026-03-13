@@ -15,6 +15,10 @@ public final class EmiBackpackSlots {
     }
 
     public static List<Slot> create(Player player) {
+        return create(player, null);
+    }
+
+    public static List<Slot> create(Player player, IItemHandlerModifiable excludedHandler) {
         List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         if (backpackHandlers.isEmpty()) {
             return List.of();
@@ -22,12 +26,18 @@ public final class EmiBackpackSlots {
 
         int totalSlots = 0;
         for (IItemHandlerModifiable handler : backpackHandlers) {
+            if (handler == excludedHandler) {
+                continue;
+            }
             totalSlots += handler.getSlots();
         }
 
         List<Slot> slots = new ArrayList<>(totalSlots);
         for (int backpackIndex = 0; backpackIndex < backpackHandlers.size(); backpackIndex++) {
             IItemHandlerModifiable backpackHandler = backpackHandlers.get(backpackIndex);
+            if (backpackHandler == excludedHandler) {
+                continue;
+            }
             int baseOffset = EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
             OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 
@@ -42,4 +52,3 @@ public final class EmiBackpackSlots {
         return slots;
     }
 }
-

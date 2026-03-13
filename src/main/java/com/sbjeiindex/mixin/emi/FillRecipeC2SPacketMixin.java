@@ -1,6 +1,5 @@
 package com.sbjeiindex.mixin.emi;
 
-import com.sbjeiindex.config.SBJEIIndexConfig;
 import com.sbjeiindex.emi.EmiTransferConstants;
 import com.sbjeiindex.emi.transfer.BackpackSlotSource;
 import com.sbjeiindex.emi.transfer.EmiFillHelper;
@@ -66,7 +65,7 @@ public class FillRecipeC2SPacketMixin {
         for (int slotId : slots) {
             if (slotId >= 0 && slotId < menu.slots.size()) {
                 inputSources.add(new MenuSlotSource(menu.slots.get(slotId)));
-            } else if (slotId >= EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET && SBJEIIndexConfig.enableEmi.get()) {
+            } else if (slotId >= EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET) {
                 if (backpackHandlers == null) {
                     backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
                 }

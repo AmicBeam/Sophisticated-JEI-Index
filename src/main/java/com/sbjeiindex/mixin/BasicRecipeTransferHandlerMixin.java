@@ -60,8 +60,18 @@ public class BasicRecipeTransferHandlerMixin {
         boolean doTransfer,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
-        List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
-        if (backpackHandlers.isEmpty()) {
+        List<IItemHandlerModifiable> allBackpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+        if (allBackpackHandlers.isEmpty()) {
+            return;
+        }
+        IItemHandlerModifiable visibleBackpackHandler = BackpackHelper.getVisibleBackpackItemHandler(container);
+        List<IItemHandlerModifiable> snapshotHandlers;
+        if (!doTransfer && visibleBackpackHandler != null) {
+            snapshotHandlers = allBackpackHandlers.stream().filter(h -> h != visibleBackpackHandler).toList();
+        } else {
+            snapshotHandlers = allBackpackHandlers;
+        }
+        if (snapshotHandlers.isEmpty()) {
             return;
         }
 
@@ -102,11 +112,14 @@ public class BasicRecipeTransferHandlerMixin {
         BackpackSnapshotCache.BackpackSnapshot backpackSnapshot = null;
         int backpackSlotCount;
         if (!doTransfer) {
-            backpackSnapshot = BackpackSnapshotCache.getOrCreate(container, backpackHandlers);
+            backpackSnapshot = BackpackSnapshotCache.getOrCreate(container, snapshotHandlers);
             backpackSlotCount = backpackSnapshot.totalBackpackSlots();
         } else {
             int count = 0;
-            for (IItemHandlerModifiable handler : backpackHandlers) {
+            for (IItemHandlerModifiable handler : allBackpackHandlers) {
+                if (handler == visibleBackpackHandler) {
+                    continue;
+                }
                 count += handler.getSlots();
             }
             backpackSlotCount = count;
@@ -163,8 +176,11 @@ public class BasicRecipeTransferHandlerMixin {
             }
         } else {
             extraSlots = new HashMap<>();
-            for (int backpackIndex = 0; backpackIndex < backpackHandlers.size(); backpackIndex++) {
-                IItemHandlerModifiable backpackHandler = backpackHandlers.get(backpackIndex);
+            for (int backpackIndex = 0; backpackIndex < allBackpackHandlers.size(); backpackIndex++) {
+                IItemHandlerModifiable backpackHandler = allBackpackHandlers.get(backpackIndex);
+                if (backpackHandler == visibleBackpackHandler) {
+                    continue;
+                }
                 int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
                 OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 

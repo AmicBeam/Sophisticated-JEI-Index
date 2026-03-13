@@ -14,8 +14,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -23,15 +27,18 @@ public class BackpackHelper {
     public static List<IBackpackWrapper> getEquippedBackpacksWithJEIIndexUpgrade(Player player) {
         int maxScanned = SBJEIIndexConfig.maxEnabledBackpacksScanned.get();
         List<IBackpackWrapper> results = new ArrayList<>();
+        Set<IBackpackWrapper> seen = Collections.newSetFromMap(new IdentityHashMap<>());
         PlayerInventoryProvider.get().runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
-            IBackpackWrapper wrapper = getBackpackWrapperFromStack(backpack);
+            IBackpackWrapper wrapper = getBackpackWrapper(backpack);
             if (wrapper == null) {
                 return false;
             }
             if (hasJEIIndexUpgrade(wrapper)) {
-                results.add(wrapper);
-                if (maxScanned > 0 && results.size() >= maxScanned) {
-                    return true;
+                if (seen.add(wrapper)) {
+                    results.add(wrapper);
+                    if (maxScanned > 0 && results.size() >= maxScanned) {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -42,9 +49,10 @@ public class BackpackHelper {
     public static List<InventoryHandler> getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(Player player) {
         List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
         List<InventoryHandler> handlers = new ArrayList<>(wrappers.size());
+        Set<InventoryHandler> seen = Collections.newSetFromMap(new IdentityHashMap<>());
         for (IBackpackWrapper wrapper : wrappers) {
             InventoryHandler h = wrapper.getInventoryHandler();
-            if (h != null) {
+            if (h != null && seen.add(h)) {
                 handlers.add(h);
             }
         }
@@ -54,9 +62,10 @@ public class BackpackHelper {
     public static List<IItemHandlerModifiable> getEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
         List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
         List<IItemHandlerModifiable> handlers = new ArrayList<>(wrappers.size());
+        Set<IItemHandlerModifiable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
         for (IBackpackWrapper wrapper : wrappers) {
             IItemHandlerModifiable h = wrapper.getInventoryHandler();
-            if (h != null) {
+            if (h != null && seen.add(h)) {
                 handlers.add(h);
             }
         }
@@ -73,9 +82,35 @@ public class BackpackHelper {
     }
 
     @Nullable
-    private static IBackpackWrapper getBackpackWrapperFromStack(ItemStack stack) {
+    public static IBackpackWrapper getBackpackWrapper(ItemStack stack) {
         LazyOptional<IBackpackWrapper> cap = stack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance());
         return cap.resolve().orElse(null);
+    }
+
+    @Nullable
+    public static IItemHandlerModifiable getBackpackItemHandler(ItemStack stack) {
+        IBackpackWrapper wrapper = getBackpackWrapper(stack);
+        if (wrapper == null) {
+            return null;
+        }
+        return wrapper.getInventoryHandler();
+    }
+
+    @Nullable
+    public static IItemHandlerModifiable getVisibleBackpackItemHandler(Object menu) {
+        if (menu == null) {
+            return null;
+        }
+        try {
+            Method m = menu.getClass().getMethod("getVisibleStorageItem");
+            Object v = m.invoke(menu);
+            if (v instanceof ItemStack stack && !stack.isEmpty()) {
+                return getBackpackItemHandler(stack);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 
     private static boolean hasJEIIndexUpgrade(IBackpackWrapper backpackWrapper) {
