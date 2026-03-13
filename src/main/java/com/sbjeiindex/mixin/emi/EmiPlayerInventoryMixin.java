@@ -27,8 +27,10 @@ public abstract class EmiPlayerInventoryMixin {
         if (!EmiClient.onServer) {
             return;
         }
-        IItemHandlerModifiable visible = BackpackHelper.getVisibleBackpackItemHandler(player.containerMenu);
-        sbjeiindex_addFromBackpacks(player, visible);
+        if (BackpackHelper.isBackpackMenu(player.containerMenu)) {
+            return;
+        }
+        sbjeiindex_addFromBackpacks(player);
     }
 
     @Inject(method = "<init>(Ljava/util/List;)V", at = @At("TAIL"))
@@ -40,16 +42,15 @@ public abstract class EmiPlayerInventoryMixin {
         if (player == null) {
             return;
         }
-        IItemHandlerModifiable visible = BackpackHelper.getVisibleBackpackItemHandler(player.containerMenu);
-        sbjeiindex_addFromBackpacks(player, visible);
+        if (BackpackHelper.isBackpackMenu(player.containerMenu)) {
+            return;
+        }
+        sbjeiindex_addFromBackpacks(player);
     }
 
-    private void sbjeiindex_addFromBackpacks(Player player, IItemHandlerModifiable visibleBackpackHandler) {
+    private void sbjeiindex_addFromBackpacks(Player player) {
         List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         for (IItemHandlerModifiable handler : backpackHandlers) {
-            if (handler == visibleBackpackHandler) {
-                continue;
-            }
             for (int i = 0; i < handler.getSlots(); i++) {
                 ItemStack stack = handler.getStackInSlot(i);
                 if (!stack.isEmpty()) {

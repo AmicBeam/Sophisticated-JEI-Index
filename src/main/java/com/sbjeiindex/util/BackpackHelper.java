@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -90,30 +89,16 @@ public class BackpackHelper {
         return cap.resolve().orElse(null);
     }
 
-    @Nullable
-    public static IItemHandlerModifiable getBackpackItemHandler(ItemStack stack) {
-        IBackpackWrapper wrapper = getBackpackWrapper(stack);
-        if (wrapper == null) {
-            return null;
-        }
-        return wrapper.getInventoryHandler();
-    }
-
-    @Nullable
-    public static IItemHandlerModifiable getVisibleBackpackItemHandler(Object menu) {
+    public static boolean isBackpackMenu(Object menu) {
         if (menu == null) {
-            return null;
+            return false;
         }
         try {
-            Method m = menu.getClass().getMethod("getVisibleStorageItem");
-            Object v = m.invoke(menu);
-            if (v instanceof ItemStack stack && !stack.isEmpty()) {
-                return getBackpackItemHandler(stack);
-            }
+            Class<?> c = Class.forName("net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase");
+            return c.isInstance(menu);
         } catch (Exception e) {
-            return null;
+            return false;
         }
-        return null;
     }
 
     private static boolean hasJEIIndexUpgrade(IBackpackWrapper backpackWrapper) {
