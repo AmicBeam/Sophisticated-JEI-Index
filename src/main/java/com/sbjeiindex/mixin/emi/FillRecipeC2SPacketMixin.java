@@ -51,7 +51,7 @@ public class FillRecipeC2SPacketMixin {
     @Overwrite
     public void apply(Player player) {
         if (slots == null || crafting == null) {
-            EmiLog.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
+            EmiLog.warn("Client requested fill but passed input and crafting slot information was invalid, aborting");
             return;
         }
         AbstractContainerMenu menu = player.containerMenu;
@@ -74,19 +74,19 @@ public class FillRecipeC2SPacketMixin {
                 int backpackIndex = relative / EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
                 int backpackSlot = relative % EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
                 if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
-                    EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
+                    EmiLog.warn("Client requested fill but passed input slots don't exist, aborting");
                     return;
                 }
 
                 IItemHandlerModifiable handler = backpackHandlers.get(backpackIndex);
                 if (backpackSlot < 0 || backpackSlot >= handler.getSlots()) {
-                    EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
+                    EmiLog.warn("Client requested fill but passed input slots don't exist, aborting");
                     return;
                 }
 
                 inputSources.add(new BackpackSlotSource(handler, backpackSlot));
             } else {
-                EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
+                EmiLog.warn("Client requested fill but passed input slots don't exist, aborting");
                 return;
             }
         }

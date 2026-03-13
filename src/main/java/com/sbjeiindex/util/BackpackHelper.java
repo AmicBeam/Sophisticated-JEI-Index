@@ -21,10 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.function.Function;
 
 public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Map<IBackpackWrapper, Byte> UPGRADE_REFRESH_STATE = new WeakHashMap<>();
+    private static final Map<IBackpackWrapper, Boolean> UPGRADE_REFRESH_ATTEMPTED = new WeakHashMap<>();
+    private static Class<?> STORAGE_MENU_CLASS;
+    private static boolean STORAGE_MENU_CLASS_CHECKED;
 
     public static List<IBackpackWrapper> getEquippedBackpacksWithJEIIndexUpgrade(Player player) {
         int maxScanned = SBJEIIndexConfig.maxEnabledBackpacksScanned.get();
@@ -50,41 +53,16 @@ public class BackpackHelper {
 
     public static List<InventoryHandler> getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(Player player) {
         List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
-        List<InventoryHandler> handlers = new ArrayList<>(wrappers.size());
-        Set<InventoryHandler> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (IBackpackWrapper wrapper : wrappers) {
-            InventoryHandler h = wrapper.getInventoryHandler();
-            if (h != null && seen.add(h)) {
-                handlers.add(h);
-            }
-        }
-        return handlers;
+        return collectHandlers(wrappers, IBackpackWrapper::getInventoryHandler);
     }
 
     public static List<IItemHandlerModifiable> getEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
         List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
-        List<IItemHandlerModifiable> handlers = new ArrayList<>(wrappers.size());
-        Set<IItemHandlerModifiable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (IBackpackWrapper wrapper : wrappers) {
-            IItemHandlerModifiable h = wrapper.getInventoryHandler();
-            if (h != null && seen.add(h)) {
-                handlers.add(h);
-            }
-        }
-        return handlers;
+        return collectHandlers(wrappers, IBackpackWrapper::getInventoryHandler);
     }
 
     @Nullable
-    public static IBackpackWrapper getEquippedBackpackWithJEIIndexUpgrade(Player player) {
-        List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
-        if (wrappers.isEmpty()) {
-            return null;
-        }
-        return wrappers.get(0);
-    }
-
-    @Nullable
-    public static IBackpackWrapper getBackpackWrapper(ItemStack stack) {
+    private static IBackpackWrapper getBackpackWrapper(ItemStack stack) {
         LazyOptional<IBackpackWrapper> cap = stack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance());
         return cap.resolve().orElse(null);
     }
@@ -93,12 +71,16 @@ public class BackpackHelper {
         if (menu == null) {
             return false;
         }
-        try {
-            Class<?> c = Class.forName("net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase");
-            return c.isInstance(menu);
-        } catch (Exception e) {
-            return false;
+        if (!STORAGE_MENU_CLASS_CHECKED) {
+            try {
+                STORAGE_MENU_CLASS = Class.forName("net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase");
+            } catch (Exception e) {
+                STORAGE_MENU_CLASS = null;
+            } finally {
+                STORAGE_MENU_CLASS_CHECKED = true;
+            }
         }
+        return STORAGE_MENU_CLASS != null && STORAGE_MENU_CLASS.isInstance(menu);
     }
 
     private static boolean hasJEIIndexUpgrade(IBackpackWrapper backpackWrapper) {
@@ -107,24 +89,26 @@ public class BackpackHelper {
                 return true;
             }
 
-            byte state = UPGRADE_REFRESH_STATE.getOrDefault(backpackWrapper, (byte) 0);
-            if ((state & 1) == 0) {
-                UPGRADE_REFRESH_STATE.put(backpackWrapper, (byte) (state | 1));
+            if (UPGRADE_REFRESH_ATTEMPTED.putIfAbsent(backpackWrapper, Boolean.TRUE) == null) {
                 backpackWrapper.onContentsNbtUpdated();
-                boolean detected = !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
-                if (!detected) {
-                    UPGRADE_REFRESH_STATE.put(backpackWrapper, (byte) (state | 1 | 2));
-                }
-                return detected;
-            }
-
-            if ((state & 2) == 0) {
-                UPGRADE_REFRESH_STATE.put(backpackWrapper, (byte) (state | 2));
+                return !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
             }
             return false;
         } catch (Exception e) {
             LOGGER.warn("Error checking JEI index upgrade", e);
             return false;
         }
+    }
+
+    private static <T> List<T> collectHandlers(List<IBackpackWrapper> wrappers, Function<IBackpackWrapper, T> getter) {
+        List<T> handlers = new ArrayList<>(wrappers.size());
+        Set<T> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (IBackpackWrapper wrapper : wrappers) {
+            T h = getter.apply(wrapper);
+            if (h != null && seen.add(h)) {
+                handlers.add(h);
+            }
+        }
+        return handlers;
     }
 }

@@ -114,7 +114,7 @@ public class PacketRecipeTransferMixin {
         boolean requireCompleteSets = buf.readBoolean();
 
         if (hasBackpackSlotIds && (backpackHandlers.isEmpty() || invalidBackpackSlotIds)) {
-            LOGGER.warn("Ignoring JEI recipe transfer: packet referenced backpack slots but no valid backpack slot mapping was found for {}", player.getGameProfile().getName());
+            LOGGER.debug("Ignoring JEI recipe transfer: packet referenced backpack slots but no valid backpack slot mapping was found for {}", player.getGameProfile().getName());
             cir.setReturnValue(CompletableFuture.completedFuture(null));
             return;
         }
