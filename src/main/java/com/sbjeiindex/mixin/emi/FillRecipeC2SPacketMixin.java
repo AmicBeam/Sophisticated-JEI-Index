@@ -1,8 +1,11 @@
 package com.sbjeiindex.mixin.emi;
 
-import com.sbjeiindex.emi.EmiTransferConstants;
 import com.sbjeiindex.config.SBJEIIndexConfig;
-import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
+import com.sbjeiindex.emi.EmiTransferConstants;
+import com.sbjeiindex.emi.transfer.BackpackSlotSource;
+import com.sbjeiindex.emi.transfer.EmiFillHelper;
+import com.sbjeiindex.emi.transfer.EmiInputSource;
+import com.sbjeiindex.emi.transfer.MenuSlotSource;
 import com.sbjeiindex.util.BackpackHelper;
 import dev.emi.emi.network.FillRecipeC2SPacket;
 import dev.emi.emi.runtime.EmiLog;
@@ -12,7 +15,6 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -47,18 +49,12 @@ public class FillRecipeC2SPacketMixin {
     @Final
     private List<ItemStack> stacks;
 
-    @Shadow
-    private static int grabMatching(Player player, List<Slot> slots, List<ItemStack> items, List<Slot> crafting, ItemStack stack) {
-        throw new UnsupportedOperationException();
-    }
-
     @Overwrite
     public void apply(Player player) {
         if (slots == null || crafting == null) {
             EmiLog.error("Client requested fill but passed input and crafting slot information was invalid, aborting");
             return;
         }
-
         AbstractContainerMenu menu = player.containerMenu;
         if (menu == null || menu.containerId != syncId) {
             EmiLog.warn("Client requested fill but screen handler has changed, aborting");
@@ -66,17 +62,13 @@ public class FillRecipeC2SPacketMixin {
         }
 
         List<IItemHandlerModifiable> backpackHandlers = null;
-        OffsetItemHandlerModifiable[] offsetHandlers = null;
-
-        List<Slot> inputSlots = new ArrayList<>();
+        List<EmiInputSource> inputSources = new ArrayList<>();
         for (int slotId : slots) {
-            Slot s;
             if (slotId >= 0 && slotId < menu.slots.size()) {
-                s = menu.slots.get(slotId);
+                inputSources.add(new MenuSlotSource(menu.slots.get(slotId)));
             } else if (slotId >= EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET && SBJEIIndexConfig.enableEmi.get()) {
                 if (backpackHandlers == null) {
                     backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
-                    offsetHandlers = new OffsetItemHandlerModifiable[backpackHandlers.size()];
                 }
 
                 int relative = slotId - EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET;
@@ -93,22 +85,11 @@ public class FillRecipeC2SPacketMixin {
                     return;
                 }
 
-                int baseOffset = EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
-                OffsetItemHandlerModifiable offsetHandler = offsetHandlers[backpackIndex];
-                if (offsetHandler == null) {
-                    offsetHandler = new OffsetItemHandlerModifiable(handler, baseOffset);
-                    offsetHandlers[backpackIndex] = offsetHandler;
-                }
-
-                Slot slot = new SlotItemHandler(offsetHandler, slotId, 0, 0);
-                slot.index = slotId;
-                s = slot;
+                inputSources.add(new BackpackSlotSource(handler, backpackSlot));
             } else {
                 EmiLog.error("Client requested fill but passed input slots don't exist, aborting");
                 return;
             }
-
-            inputSlots.add(s);
         }
 
         List<Slot> craftingSlots = new ArrayList<>();
@@ -153,14 +134,11 @@ public class FillRecipeC2SPacketMixin {
                     continue;
                 }
 
-                int grabbed = grabMatching(player, inputSlots, cleared, craftingSlots, stack);
+                int grabbed = EmiFillHelper.grabMatching(player, inputSources, cleared, craftingSlots, stack);
                 if (grabbed != stack.getCount()) {
                     if (grabbed > 0) {
                         stack.shrink(grabbed);
                         player.getInventory().placeItemBackInInventory(stack);
-                    }
-                    for (ItemStack s : cleared) {
-                        player.getInventory().placeItemBackInInventory(s);
                     }
                     return;
                 }
@@ -189,4 +167,5 @@ public class FillRecipeC2SPacketMixin {
             }
         }
     }
+
 }
