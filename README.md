@@ -8,7 +8,7 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 
 - ✅ Compatible with JEI native recipe transfer scenarios
 - ✅ Uses enabled backpacks in the selection order as extra ingredient sources
-- ✅ Also supports the crafting terminals of the following mods (priority: network → player inventory → enabled backpacks in order): AE2, Refined Storage, Tom's Storage, Beyond Dimensions
+- ✅ Also supports the crafting terminals of the following mods (priority: network → player inventory → enabled backpacks in order): AE2, Refined Storage
 - ✅ Supports shift-click max transfer and JEI complete-set semantics
 - ✅ Compatible with EMI recipe fill and recipe tree quick-craft (requires EMI on the server for multiplayer)
 
@@ -54,6 +54,7 @@ This project maintains separate branches per Minecraft/loader version:
 - Config option: `maxEnabledBackpacksScanned` (common config). Limits how many enabled backpacks are scanned per player. 0 means unlimited.
 - Nested backpacks (e.g. via Inception Upgrade) are not supported as ingredient sources.
 - Optional mod integrations are enabled only when the matching mod (and compatible version) is present.
+- Tom's Storage and Beyond Dimensions are not compatible yet. PRs are welcome.
 
 ## License
 

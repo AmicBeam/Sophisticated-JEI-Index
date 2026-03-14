@@ -23,12 +23,6 @@ config="sophisticated_jei_index.ae2.mixins.json"
 [[mixins]]
 config="sophisticated_jei_index.rs.mixins.json"
 
-[[mixins]]
-config="sophisticated_jei_index.ts.mixins.json"
-
-[[mixins]]
-config="sophisticated_jei_index.bd.mixins.json"
-
 [[dependencies.sophisticated_jei_index]]
 modId="neoforge"
 type="required"
@@ -77,18 +71,3 @@ type="optional"
 versionRange="[0,)"
 ordering="AFTER"
 side="BOTH"
-
-[[dependencies.sophisticated_jei_index]]
-modId="toms_storage"
-type="optional"
-versionRange="[0,)"
-ordering="AFTER"
-side="BOTH"
-
-[[dependencies.sophisticated_jei_index]]
-modId="beyonddimensions"
-type="optional"
-versionRange="[0,)"
-ordering="AFTER"
-side="BOTH"
-
