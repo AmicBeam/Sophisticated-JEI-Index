@@ -14,13 +14,24 @@
 
 ## 依赖
 
-- Minecraft 1.20.1
-- Forge 47.x
-- Sophisticated Core 1.20.1-1.3.6+（Sophisticated Backpacks 的前置）
-- Sophisticated Backpacks 3.24+
-- JEI 15.0+（Just Enough Items）
-- EMI（可选）
-- Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
+本项目按 MC/加载器版本拆分分支维护：
+
+- **Forge（Minecraft 1.20.1）**：使用分支 `forge-1.20.1`
+  - Minecraft 1.20.1
+  - Forge 47.x
+  - Sophisticated Core 1.20.1-1.3.6+（Sophisticated Backpacks 的前置）
+  - Sophisticated Backpacks 3.24+
+  - JEI 15.x（Just Enough Items，Forge）
+  - EMI（可选）
+  - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
+- **NeoForge（Minecraft 1.21.x）**：使用分支 `neoforge-1.21.1`
+  - Minecraft 1.21.x
+  - NeoForge 21.1+
+  - Sophisticated Core 1.21.1+（Sophisticated Backpacks 的前置）
+  - Sophisticated Backpacks 1.21.1+
+  - JEI 19.x（Just Enough Items，NeoForge）
+  - EMI（可选）
+  - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
 
 ## 安装
 
@@ -42,6 +53,7 @@
 - 背包的判定顺序与 Sophisticated Backpacks 的 B 键逻辑一致，仅筛选启用该升级的背包。
 - 配置项：`maxEnabledBackpacksScanned`（common 配置），用于限制同一个玩家最多检索多少个启用该升级的背包，0 表示不限制。
 - 不支持将嵌套升级（如 Inception Upgrade）打开的内层背包作为材料来源。
+- 与其它 Mod 的联动会在检测到对应 Mod（且版本兼容）时才启用。
 
 ## 许可证
 

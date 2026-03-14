@@ -14,13 +14,24 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 
 ## Requirements
 
-- Minecraft 1.20.1
-- Forge 47.x
-- Sophisticated Core 1.20.1-1.3.6+ (required by Sophisticated Backpacks)
-- Sophisticated Backpacks 3.24+
-- JEI 15.0+ (Just Enough Items)
-- EMI (optional)
-- Curios (optional, only needed if you want Curios slot support)
+This project maintains separate branches per Minecraft/loader version:
+
+- **Forge (Minecraft 1.20.1)**: use branch `forge-1.20.1`
+  - Minecraft 1.20.1
+  - Forge 47.x
+  - Sophisticated Core 1.20.1-1.3.6+ (required by Sophisticated Backpacks)
+  - Sophisticated Backpacks 3.24+
+  - JEI 15.x (Just Enough Items, Forge)
+  - EMI (optional)
+  - Curios (optional, only needed if you want Curios slot support)
+- **NeoForge (Minecraft 1.21.x)**: use branch `neoforge-1.21.1`
+  - Minecraft 1.21.x
+  - NeoForge 21.1+
+  - Sophisticated Core 1.21.1+ (required by Sophisticated Backpacks)
+  - Sophisticated Backpacks 1.21.1+
+  - JEI 19.x (Just Enough Items, NeoForge)
+  - EMI (optional)
+  - Curios (optional, only needed if you want Curios slot support)
 
 ## Installation
 
@@ -42,6 +53,7 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 - The backpack selection order follows Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.
 - Config option: `maxEnabledBackpacksScanned` (common config). Limits how many enabled backpacks are scanned per player. 0 means unlimited.
 - Nested backpacks (e.g. via Inception Upgrade) are not supported as ingredient sources.
+- Optional mod integrations are enabled only when the matching mod (and compatible version) is present.
 
 ## License
 
