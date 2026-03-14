@@ -5,137 +5,144 @@ import com.sbjeiindex.jei.JeiTransferConstants;
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
 import mezz.jei.common.network.ServerPacketContext;
-import mezz.jei.common.network.ServerPacketData;
 import mezz.jei.common.network.packets.PacketRecipeTransfer;
 import mezz.jei.common.transfer.BasicRecipeTransferHandlerServer;
 import mezz.jei.common.transfer.TransferOperation;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @Mixin(value = PacketRecipeTransfer.class, remap = false)
 public class PacketRecipeTransferMixin {
-    private static final Logger LOGGER = LogManager.getLogger();
+    @Shadow(remap = false)
+    @Final
+    public List<TransferOperation> transferOperations;
 
-    @Inject(method = "readPacketData", at = @At("HEAD"), cancellable = true, remap = false)
-    private static void sbjeiindex_readPacketData(ServerPacketData data, CallbackInfoReturnable<CompletableFuture<Void>> cir) {
-        ServerPacketContext context = data.context();
+    @Shadow(remap = false)
+    @Final
+    public List<Integer> craftingSlots;
+
+    @Shadow(remap = false)
+    @Final
+    public List<Integer> inventorySlots;
+
+    @Shadow(remap = false)
+    @Final
+    private boolean maxTransfer;
+
+    @Shadow(remap = false)
+    @Final
+    private boolean requireCompleteSets;
+
+    @Inject(method = "process", at = @At("HEAD"), cancellable = true, remap = false)
+    private void sbjeiindex_process(ServerPacketContext context, CallbackInfo ci) {
         ServerPlayer player = context.player();
-        FriendlyByteBuf buf = data.buf();
         AbstractContainerMenu container = player.containerMenu;
-
-        int transferOperationsSize = buf.readVarInt();
-        List<TransferOperation> transferOperations = new ArrayList<>();
-        for (int i = 0; i < transferOperationsSize; i++) {
-            TransferOperation transferOperation = TransferOperation.readPacketData(buf, container);
-            transferOperations.add(transferOperation);
-        }
-
-        int craftingSlotsSize = buf.readVarInt();
-        List<Slot> craftingSlots = new ArrayList<>();
-        for (int i = 0; i < craftingSlotsSize; i++) {
-            int slotIndex = buf.readVarInt();
-            Slot slot = container.getSlot(slotIndex);
-            craftingSlots.add(slot);
-        }
 
         List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         OffsetItemHandlerModifiable[] offsetHandlers = backpackHandlers.isEmpty() ? null : new OffsetItemHandlerModifiable[backpackHandlers.size()];
 
-        int inventorySlotsSize = buf.readVarInt();
-        List<Slot> inventorySlots = new ArrayList<>();
+        List<Slot> craftingSlotsResolved = new ArrayList<>(craftingSlots.size());
+        List<Slot> inventorySlotsResolved = new ArrayList<>(inventorySlots.size());
         Map<Integer, Slot> extraSlots = new HashMap<>();
-        boolean hasBackpackSlotIds = false;
         boolean invalidBackpackSlotIds = false;
-        for (int i = 0; i < inventorySlotsSize; i++) {
-            int slotIndex = buf.readVarInt();
-            if (slotIndex >= JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET) {
-                hasBackpackSlotIds = true;
-                if (backpackHandlers.isEmpty()) {
-                    invalidBackpackSlotIds = true;
-                    continue;
-                }
 
-                int encoded = slotIndex - JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET;
-                int stride = JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
-                if (stride <= 0) {
-                    invalidBackpackSlotIds = true;
-                    continue;
-                }
-
-                int backpackIndex = encoded / stride;
-                int innerSlot = encoded % stride;
-                if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
-                    invalidBackpackSlotIds = true;
-                    continue;
-                }
-
-                IItemHandlerModifiable handler = backpackHandlers.get(backpackIndex);
-                if (handler == null || innerSlot < 0 || innerSlot >= handler.getSlots()) {
-                    invalidBackpackSlotIds = true;
-                    continue;
-                }
-
-                OffsetItemHandlerModifiable offsetHandler = offsetHandlers == null ? null : offsetHandlers[backpackIndex];
-                if (offsetHandler == null) {
-                    int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
-                    offsetHandler = new OffsetItemHandlerModifiable(handler, baseOffset);
-                    if (offsetHandlers != null) {
-                        offsetHandlers[backpackIndex] = offsetHandler;
-                    }
-                }
-                Slot slot = new SlotItemHandler(offsetHandler, slotIndex, 0, 0);
-                slot.index = slotIndex;
-                inventorySlots.add(slot);
-                extraSlots.put(slotIndex, slot);
-            } else {
-                Slot slot = container.getSlot(slotIndex);
-                inventorySlots.add(slot);
+        for (int slotIndex : craftingSlots) {
+            Slot resolved = resolveSlot(container, slotIndex, backpackHandlers, offsetHandlers, extraSlots);
+            if (resolved == null) {
+                invalidBackpackSlotIds = true;
+                continue;
             }
+            craftingSlotsResolved.add(resolved);
+        }
+        for (int slotIndex : inventorySlots) {
+            Slot resolved = resolveSlot(container, slotIndex, backpackHandlers, offsetHandlers, extraSlots);
+            if (resolved == null) {
+                invalidBackpackSlotIds = true;
+                continue;
+            }
+            inventorySlotsResolved.add(resolved);
         }
 
-        boolean maxTransfer = buf.readBoolean();
-        boolean requireCompleteSets = buf.readBoolean();
-
-        if (hasBackpackSlotIds && (backpackHandlers.isEmpty() || invalidBackpackSlotIds)) {
-            LOGGER.debug("Ignoring JEI recipe transfer: packet referenced backpack slots but no valid backpack slot mapping was found for {}", player.getGameProfile().getName());
-            cir.setReturnValue(CompletableFuture.completedFuture(null));
+        if (invalidBackpackSlotIds) {
+            ci.cancel();
             return;
         }
 
-        MinecraftServer server = player.server;
-        CompletableFuture<Void> future = server.submit(() -> {
-            JeiSlotResolver.set(extraSlots);
-            try {
-                BasicRecipeTransferHandlerServer.setItems(
-                    player,
-                    transferOperations,
-                    craftingSlots,
-                    inventorySlots,
-                    maxTransfer,
-                    requireCompleteSets
-                );
-            } finally {
-                JeiSlotResolver.clear();
-            }
-        });
+        JeiSlotResolver.set(extraSlots);
+        try {
+            BasicRecipeTransferHandlerServer.setItems(
+                player,
+                transferOperations,
+                craftingSlotsResolved,
+                inventorySlotsResolved,
+                maxTransfer,
+                requireCompleteSets
+            );
+        } finally {
+            JeiSlotResolver.clear();
+        }
+        ci.cancel();
+    }
 
-        cir.setReturnValue(future);
+    private static Slot resolveSlot(
+        AbstractContainerMenu container,
+        int slotIndex,
+        List<IItemHandlerModifiable> backpackHandlers,
+        OffsetItemHandlerModifiable[] offsetHandlers,
+        Map<Integer, Slot> extraSlots
+    ) {
+        if (slotIndex < JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET) {
+            if (slotIndex < 0 || slotIndex >= container.slots.size()) {
+                return null;
+            }
+            return container.getSlot(slotIndex);
+        }
+        if (backpackHandlers.isEmpty()) {
+            return null;
+        }
+
+        int encoded = slotIndex - JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET;
+        int stride = JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+        if (stride <= 0) {
+            return null;
+        }
+
+        int backpackIndex = encoded / stride;
+        int innerSlot = encoded % stride;
+        if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
+            return null;
+        }
+
+        IItemHandlerModifiable handler = backpackHandlers.get(backpackIndex);
+        if (handler == null || innerSlot < 0 || innerSlot >= handler.getSlots()) {
+            return null;
+        }
+
+        OffsetItemHandlerModifiable offsetHandler = offsetHandlers == null ? null : offsetHandlers[backpackIndex];
+        if (offsetHandler == null) {
+            int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
+            offsetHandler = new OffsetItemHandlerModifiable(handler, baseOffset);
+            if (offsetHandlers != null) {
+                offsetHandlers[backpackIndex] = offsetHandler;
+            }
+        }
+        Slot slot = new SlotItemHandler(offsetHandler, slotIndex, 0, 0);
+        slot.index = slotIndex;
+        extraSlots.put(slotIndex, slot);
+        return slot;
     }
 }

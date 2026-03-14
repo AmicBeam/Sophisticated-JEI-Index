@@ -4,9 +4,8 @@ import com.sbjeiindex.config.SBJEIIndexConfig;
 import com.sbjeiindex.upgrade.JEIIndexUpgradeItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.p3pp3rf1y.sophisticatedbackpacks.api.CapabilityBackpackWrapper;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
@@ -63,8 +62,11 @@ public class BackpackHelper {
 
     @Nullable
     private static IBackpackWrapper getBackpackWrapper(ItemStack stack) {
-        LazyOptional<IBackpackWrapper> cap = stack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance());
-        return cap.resolve().orElse(null);
+        try {
+            return BackpackWrapper.fromStack(stack);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static boolean isBackpackMenu(Object menu) {

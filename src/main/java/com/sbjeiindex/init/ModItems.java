@@ -2,14 +2,14 @@ package com.sbjeiindex.init;
 
 import com.sbjeiindex.SBJEIIndex;
 import com.sbjeiindex.upgrade.JEIIndexUpgradeItem;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class ModItems {
     public static final DeferredRegister<net.minecraft.world.item.Item> ITEMS =
-            DeferredRegister.create(ForgeRegistries.ITEMS, SBJEIIndex.MOD_ID);
+            DeferredRegister.create(Registries.ITEM, SBJEIIndex.MOD_ID);
 
-    public static final RegistryObject<JEIIndexUpgradeItem> JEI_INDEX_UPGRADE =
+    public static final DeferredHolder<net.minecraft.world.item.Item, JEIIndexUpgradeItem> JEI_INDEX_UPGRADE =
             ITEMS.register("jei_index_upgrade", JEIIndexUpgradeItem::new);
 }

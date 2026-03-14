@@ -8,7 +8,7 @@ import com.sbjeiindex.SBJEIIndex;
 
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
-    public static final ResourceLocation PLUGIN_UID = new ResourceLocation(SBJEIIndex.MOD_ID, "jei_plugin");
+    public static final ResourceLocation PLUGIN_UID = ResourceLocation.fromNamespaceAndPath(SBJEIIndex.MOD_ID, "jei_plugin");
 
     @Override
     public ResourceLocation getPluginUid() {

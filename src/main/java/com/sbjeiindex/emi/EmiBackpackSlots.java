@@ -4,8 +4,8 @@ import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import java.util.ArrayList;
 import java.util.List;
 

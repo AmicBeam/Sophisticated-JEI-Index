@@ -19,7 +19,7 @@ public final class EmiFillHelper {
                 return grabbed;
             }
             ItemStack item = items.get(i);
-            if (ItemStack.isSameItemSameTags(stack, item)) {
+            if (ItemStack.isSameItemSameComponents(stack, item)) {
                 int remaining = total - grabbed;
                 if (item.getCount() <= remaining) {
                     grabbed += item.getCount();
@@ -44,7 +44,7 @@ public final class EmiFillHelper {
                 continue;
             }
             ItemStack item = source.getItem();
-            if (!ItemStack.isSameItemSameTags(stack, item)) {
+            if (!ItemStack.isSameItemSameComponents(stack, item)) {
                 continue;
             }
             int remaining = total - grabbed;

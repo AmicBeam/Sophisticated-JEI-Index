@@ -1,14 +1,14 @@
 package com.sbjeiindex.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public final class SBJEIIndexConfig {
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.IntValue maxEnabledBackpacksScanned;
+    public static final ModConfigSpec.IntValue maxEnabledBackpacksScanned;
 
     static {
-        ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder b = new ModConfigSpec.Builder();
 
         b.push("general");
         maxEnabledBackpacksScanned = b

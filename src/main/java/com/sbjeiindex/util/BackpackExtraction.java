@@ -102,7 +102,7 @@ public class BackpackExtraction {
                 continue;
             }
             for (ItemStack template : templates) {
-                if (template != null && !template.isEmpty() && ItemStack.isSameItemSameTags(stack, template)) {
+                if (template != null && !template.isEmpty() && ItemStack.isSameItemSameComponents(stack, template)) {
                     return true;
                 }
             }
@@ -136,7 +136,7 @@ public class BackpackExtraction {
                 continue;
             }
             for (ItemStack template : templates) {
-                if (template != null && !template.isEmpty() && ItemStack.isSameItemSameTags(stack, template)) {
+                if (template != null && !template.isEmpty() && ItemStack.isSameItemSameComponents(stack, template)) {
                     ItemStack extracted = handler.extractItem(i, 1, false);
                     if (!extracted.isEmpty()) {
                         return extracted;
@@ -176,7 +176,7 @@ public class BackpackExtraction {
                 continue;
             }
             for (ItemStack template : templates) {
-                if (template != null && !template.isEmpty() && ItemStack.isSameItemSameTags(stack, template)) {
+                if (template != null && !template.isEmpty() && ItemStack.isSameItemSameComponents(stack, template)) {
                     reservedCounts[i]++;
                     return true;
                 }

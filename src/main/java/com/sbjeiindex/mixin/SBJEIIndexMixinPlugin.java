@@ -22,6 +22,9 @@ public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (!hasClass(targetClassName)) {
+            return false;
+        }
         if (!jeiInternalsPresent && mixinClassName.startsWith("com.sbjeiindex.mixin.")) {
             if (mixinClassName.endsWith("BasicRecipeTransferHandlerMixin")
                 || mixinClassName.endsWith("PacketRecipeTransferMixin")

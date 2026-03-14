@@ -1,8 +1,8 @@
 plugins {
+    id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.moddev' version '1.0.14'
 }
 
 version = mod_version
@@ -12,84 +12,89 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-minecraft {
-    mappings channel: mapping_channel, version: mapping_version
-    copyIdeResources = true
-    runs {
-        configureEach {
-            workingDirectory project.file("run/${it.name}")
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-        client {}
-        server { args '--nogui' }
-    }
-}
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 repositories {
     mavenCentral()
-    maven { url = 'https://maven.parchmentmc.org' }
-    maven { url = 'https://maven.neoforged.net/releases' }
-    maven {
-        name = 'CurseMaven'
-        url = 'https://cursemaven.com'
-        content { includeGroup 'curse.maven' }
+    maven { url "https://www.cursemaven.com"
+        content { includeGroup "curse.maven" }
+    }
+    maven { url "https://maven.blamejared.com/"
+        content { includeGroup "mezz.jei" }
     }
     maven {
-        url = 'https://maven.blamejared.com'
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+        content { includeGroup "dev.emi" }
     }
-    flatDir { dirs 'runtime-mods' }
+}
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        configureEach {
+            systemProperty 'forge.logging.console.level', 'debug'
+            systemProperty 'mixin.env.disableRefMap', 'true'
+        }
+
+        client {
+            client()
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation "curse.maven:sophisticated-core-${sc_curse_id}:${sc_file_id}"
+    implementation "curse.maven:sophisticated-backpacks-${sb_curse_id}:${sb_file_id}"
 
-    compileOnly fg.deobf("curse.maven:sophisticated-core-${sc_curse_id}:${sc_file_id}")
-    compileOnly fg.deobf("curse.maven:sophisticated-backpacks-${sb_curse_id}:${sb_file_id}")
-    compileOnly fg.deobf("curse.maven:applied-energistics-2-${ae2_curse_id}:${ae2_file_id}")
-    compileOnly fg.deobf("curse.maven:refinedstorage-${rs_curse_id}:${rs_file_id}")
-    compileOnly fg.deobf("curse.maven:toms-storage-${ts_curse_id}:${ts_file_id}")
-    compileOnly fg.deobf("curse.maven:beyonddimensions-${bd_curse_id}:${bd_file_id}")
-    compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge:${jei_version}")
-    compileOnly fg.deobf("curse.maven:emi-${emi_curse_id}:${emi_file_id}")
+    compileOnly "mezz.jei:jei-${jei_mc_version}:${jei_version}"
+    localRuntime "mezz.jei:jei-${jei_mc_version}:${jei_version}"
 
-    compileOnly "org.spongepowered:mixin:0.8.5"
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    compileOnly "dev.emi:emi-neoforge:${emi_version}"
+    localRuntime "dev.emi:emi-neoforge:${emi_version}"
 }
 
-tasks.named('jar', Jar).configure {
-    manifest {
-        attributes([
-                'Specification-Title'     : mod_id,
-                'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.version,
-                'MixinConfigs'            : "${mod_id}.mixins.json,${mod_id}.emi.mixins.json,${mod_id}.ae2.mixins.json,${mod_id}.rs.mixins.json,${mod_id}.ts.mixins.json,${mod_id}.bd.mixins.json"
-        ])
-    }
-}
-
-jar.finalizedBy('reobfJar')
-
-tasks.withType(ProcessResources).configureEach {
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
     var replaceProperties = [
-            mod_version: mod_version,
-            mod_description: mod_description,
-            forge_version_range: forge_version_range,
-            minecraft_version_range: minecraft_version_range
+            minecraft_version   : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version         : neo_version,
+            neo_version_range   : neo_version_range,
+            loader_version_range: loader_version_range,
+            mod_id              : mod_id,
+            mod_version         : mod_version,
+            mod_description     : mod_description
     ]
     inputs.properties replaceProperties
 
-    filesMatching(['META-INF/mods.toml']) {
-        expand replaceProperties
-    }
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
 }
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

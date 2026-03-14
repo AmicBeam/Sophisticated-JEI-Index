@@ -21,8 +21,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -83,7 +83,7 @@ public class BasicRecipeTransferHandlerMixin {
 
         List<Slot> craftingSlots = List.copyOf(transferInfo.getRecipeSlots(container, recipe));
         List<Slot> inventorySlotsRaw = List.copyOf(transferInfo.getInventorySlots(container, recipe));
-        if (!BasicRecipeTransferHandler.validateTransferInfo(transferInfo, container, craftingSlots, inventorySlotsRaw, player)) {
+        if (!BasicRecipeTransferHandler.validateTransferInfo(transferInfo, container, craftingSlots, inventorySlotsRaw)) {
             cir.setReturnValue(handlerHelper.createInternalError());
             return;
         }
@@ -214,7 +214,7 @@ public class BasicRecipeTransferHandlerMixin {
 
             if (doTransfer) {
                 boolean requireCompleteSets = transferInfo.requireCompleteSets(container, recipe);
-                PacketRecipeTransfer packet = new PacketRecipeTransfer(
+                PacketRecipeTransfer packet = PacketRecipeTransfer.fromSlots(
                     transferOperations.results,
                     craftingSlots,
                     extendedInventorySlots,

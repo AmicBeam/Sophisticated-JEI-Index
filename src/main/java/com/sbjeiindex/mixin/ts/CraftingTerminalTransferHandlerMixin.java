@@ -83,8 +83,12 @@ public class CraftingTerminalTransferHandlerMixin {
 
         if (doTransfer) {
             try {
-                var recipeId = recipe.getId();
-                if (recipeId != null && !player.level().getRecipeManager().byKey(recipeId).isEmpty()) {
+                Object recipeId = null;
+                try {
+                    recipeId = recipe.getClass().getMethod("getId").invoke(recipe);
+                } catch (Exception e) {
+                }
+                if (recipeId != null) {
                     CompoundTag compound = new CompoundTag();
                     compound.putString("fill", recipeId.toString());
                     container.getClass().getMethod("sendMessage", CompoundTag.class).invoke(container, compound);

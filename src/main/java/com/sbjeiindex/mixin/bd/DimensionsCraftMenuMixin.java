@@ -32,7 +32,7 @@ public class DimensionsCraftMenuMixin {
             int slots = handler.getSlots();
             for (int i = 0; i < slots && remaining > 0; i++) {
                 ItemStack stack = handler.getStackInSlot(i);
-                if (stack.isEmpty() || !ItemStack.isSameItemSameTags(stack, template)) {
+                if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, template)) {
                     continue;
                 }
                 ItemStack extracted = handler.extractItem(i, remaining, false);

@@ -1,7 +1,7 @@
 package com.sbjeiindex.jei;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 public class OffsetItemHandlerModifiable implements IItemHandlerModifiable {
     private final IItemHandlerModifiable delegate;
