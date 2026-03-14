@@ -8,7 +8,7 @@
 
 - ✅ 兼容 JEI 原生配方转移场景
 - ✅ 材料来源扩展到顺位中所有启用该升级的背包
-- ✅ 同时支持以下 Mod 的合成终端（优先级：网络取材 → 玩家物品栏 → 按顺位遍历启用该升级的背包）：AE2、Refined Storage、Tom's Storage（仅 JEI）、Beyond Dimensions（仅 JEI）
+- ✅ 同时支持以下 Mod 的合成终端（优先级：网络取材 → 玩家物品栏 → 按顺位遍历启用该升级的背包）：AE2、Refined Storage、Tom's Storage
 - ✅ 支持 Shift 最大转移与 JEI 的完整套数/回滚语义
 - ✅ 兼容 EMI 的配方转移与配方树快捷合成（多人需要服务端也安装 EMI）
 
@@ -54,7 +54,7 @@
 - 配置项：`maxEnabledBackpacksScanned`（common 配置），用于限制同一个玩家最多检索多少个启用该升级的背包，0 表示不限制。
 - 不支持将嵌套升级（如 Inception Upgrade）打开的内层背包作为材料来源。
 - 与其它 Mod 的联动会在检测到对应 Mod（且版本兼容）时才启用。
-- Tom's Storage 与 Beyond Dimensions 仅支持 JEI 配方转移，EMI 不支持。
+- Tom's Storage 仅支持 JEI 配方转移，EMI 不支持。
 
 ## 许可证
 
