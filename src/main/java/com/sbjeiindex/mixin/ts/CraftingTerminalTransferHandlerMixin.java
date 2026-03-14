@@ -72,9 +72,10 @@ public class CraftingTerminalTransferHandlerMixin {
                 continue;
             }
 
+            boolean inBackpack = BackpackExtraction.containsAnyTemplateMatch(backpacks, templates);
             boolean found = hasInPlayerInventory(player, templates)
                 || hasInTerminalStorage(stored, templates)
-                || BackpackExtraction.containsAnyTemplateMatch(backpacks, templates);
+                || inBackpack;
 
             if (!found) {
                 missing.add(view);

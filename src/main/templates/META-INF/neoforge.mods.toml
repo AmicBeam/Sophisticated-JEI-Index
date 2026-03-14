@@ -23,12 +23,6 @@ config="${mod_id}.ae2.mixins.json"
 [[mixins]]
 config="${mod_id}.rs.mixins.json"
 
-[[mixins]]
-config="${mod_id}.ts.mixins.json"
-
-[[mixins]]
-config="${mod_id}.bd.mixins.json"
-
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
@@ -91,4 +85,3 @@ type="optional"
 versionRange="[0,)"
 ordering="AFTER"
 side="BOTH"
-

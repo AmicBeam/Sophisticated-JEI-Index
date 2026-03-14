@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Function;
-
 public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Map<IBackpackWrapper, Boolean> UPGRADE_REFRESH_ATTEMPTED = new WeakHashMap<>();

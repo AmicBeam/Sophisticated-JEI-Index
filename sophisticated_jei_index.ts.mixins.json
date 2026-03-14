@@ -4,8 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.sbjeiindex.mixin.SBJEIIndexMixinPlugin",
   "package": "com.sbjeiindex.mixin",
-  "mixins": [
+  "client": [
     "ts.CraftingTerminalTransferHandlerMixin",
     "ts.TerminalCraftingFillerMixin"
-  ]
+  ],
+  "mixins": []
 }

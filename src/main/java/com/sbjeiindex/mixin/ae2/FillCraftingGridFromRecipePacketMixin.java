@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-@Mixin(targets = "appeng.core.sync.packets.FillCraftingGridFromRecipePacket", remap = false)
+@Mixin(targets = "appeng.core.network.serverbound.FillCraftingGridFromRecipePacket", remap = false)
 public class FillCraftingGridFromRecipePacketMixin {
     @Inject(method = "takeIngredientFromPlayer", at = @At("RETURN"), cancellable = true, remap = false)
     private void sbjeiindex_takeIngredientFromPlayer(@Coerce Object cct, ServerPlayer player, Ingredient ingredient, CallbackInfoReturnable<ItemStack> cir) {

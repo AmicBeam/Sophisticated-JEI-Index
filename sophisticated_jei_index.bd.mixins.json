@@ -4,11 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.sbjeiindex.mixin.SBJEIIndexMixinPlugin",
   "package": "com.sbjeiindex.mixin",
-  "client": [
-    "bd.CraftMenuRecipeTransferHandlerMixin",
-    "bd.CraftTerminalRecipeTransferHandlerMixin"
-  ],
   "mixins": [
+    "bd.CraftMenuRecipeTransferHandlerMixin",
+    "bd.CraftTerminalRecipeTransferHandlerMixin",
     "bd.DimensionsCraftMenuMixin"
   ]
 }

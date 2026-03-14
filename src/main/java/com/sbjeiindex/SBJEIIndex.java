@@ -2,7 +2,6 @@ package com.sbjeiindex;
 
 import com.sbjeiindex.config.SBJEIIndexConfig;
 import com.sbjeiindex.init.ModItems;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -17,7 +16,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 public class SBJEIIndex {
     public static final String MOD_ID = "sophisticated_jei_index";
     private static final ResourceKey<CreativeModeTab> SOPHISTICATED_BACKPACKS_TAB =
-        ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath("sophisticatedbackpacks", "main"));
+        ResourceKey.create(net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath("sophisticatedbackpacks", "main"));
 
     public SBJEIIndex(IEventBus modBus, Dist dist, ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, SBJEIIndexConfig.SPEC);

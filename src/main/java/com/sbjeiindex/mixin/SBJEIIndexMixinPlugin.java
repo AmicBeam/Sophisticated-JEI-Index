@@ -12,7 +12,9 @@ public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        jeiInternalsPresent = hasClass("mezz.jei.common.network.ServerPacketData");
+        jeiInternalsPresent =
+            hasClass("mezz.jei.common.network.packets.PacketRecipeTransfer") ||
+            hasClass("mezz.jei.common.network.ServerPacketData");
     }
 
     @Override
@@ -22,9 +24,6 @@ public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!hasClass(targetClassName)) {
-            return false;
-        }
         if (!jeiInternalsPresent && mixinClassName.startsWith("com.sbjeiindex.mixin.")) {
             if (mixinClassName.endsWith("BasicRecipeTransferHandlerMixin")
                 || mixinClassName.endsWith("PacketRecipeTransferMixin")
@@ -53,11 +52,7 @@ public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
     }
 
     private static boolean hasClass(String name) {
-        try {
-            Class.forName(name, false, SBJEIIndexMixinPlugin.class.getClassLoader());
-            return true;
-        } catch (Throwable ignored) {
-            return false;
-        }
+        String path = name.replace('.', '/') + ".class";
+        return SBJEIIndexMixinPlugin.class.getClassLoader().getResource(path) != null;
     }
 }
