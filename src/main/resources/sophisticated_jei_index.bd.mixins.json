@@ -6,9 +6,11 @@
   "package": "com.sbjeiindex.mixin",
   "client": [
     "bd.CraftMenuRecipeTransferHandlerMixin",
-    "bd.CraftTerminalRecipeTransferHandlerMixin"
+    "bd.CraftTerminalRecipeTransferHandlerMixin",
+    "bd.NetRecipeHandlerMixin"
   ],
   "mixins": [
+    "bd.AutoRefillResultSlotMixin",
     "bd.DimensionsCraftMenuMixin"
   ]
 }

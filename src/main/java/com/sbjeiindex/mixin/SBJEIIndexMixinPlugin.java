@@ -9,19 +9,12 @@ import java.util.Set;
 
 public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
     private boolean jeiInternalsPresent;
-    private boolean beyondDimensionsPresent;
 
     @Override
     public void onLoad(String mixinPackage) {
         jeiInternalsPresent =
             hasClass("mezz.jei.common.network.packets.PacketRecipeTransfer") ||
             hasClass("mezz.jei.common.network.ServerPacketData");
-        beyondDimensionsPresent =
-            hasClass("com.wintercogs.beyonddimensions.common.menu.DimensionsCraftMenu") &&
-            hasClass("com.wintercogs.beyonddimensions.common.menu.DimensionsCraftMenuTerminal") &&
-            hasClass("com.wintercogs.beyonddimensions.integration.module.jei.transfer.CraftMenuRecipeTransferHandler") &&
-            hasClass("com.wintercogs.beyonddimensions.integration.module.jei.transfer.CraftTerminalRecipeTransferHandler") &&
-            hasClass("com.wintercogs.beyonddimensions.integration.module.jei.transfer.TransferHelper");
     }
 
     @Override
@@ -37,9 +30,6 @@ public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
                 || mixinClassName.endsWith("TransferOperationMixin")) {
                 return false;
             }
-        }
-        if (!beyondDimensionsPresent && mixinClassName.startsWith("com.sbjeiindex.mixin.bd.")) {
-            return false;
         }
         return true;
     }
