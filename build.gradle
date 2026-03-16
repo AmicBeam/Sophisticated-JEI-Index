@@ -73,6 +73,12 @@ dependencies {
 
     compileOnly "dev.emi:emi-neoforge:${emi_version}"
     localRuntime "dev.emi:emi-neoforge:${emi_version}"
+
+    compileOnly "curse.maven:beyond-dimensions-1222890:${bd_version}"
+    localRuntime "curse.maven:beyond-dimensions-1222890:${bd_version}"
+
+    compileOnly "curse.maven:toms-storage-378609:7659872"
+    localRuntime "curse.maven:toms-storage-378609:7659872"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
