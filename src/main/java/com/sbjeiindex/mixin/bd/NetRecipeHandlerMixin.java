@@ -18,13 +18,13 @@ import java.util.List;
 @Mixin(targets = "com.wintercogs.beyonddimensions.integration.module.emi.recipe.NetRecipeHandler", remap = false)
 public class NetRecipeHandlerMixin<T extends DimensionsCraftMenu> {
     @Redirect(
-        method = "craft",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/world/entity/player/Inventory;items:Lnet/minecraft/core/NonNullList;",
-            opcode = Opcodes.GETFIELD
-        ),
-        remap = false
+            method = "craft",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/world/entity/player/Inventory;items:Lnet/minecraft/core/NonNullList;",
+                    opcode = Opcodes.GETFIELD
+            ),
+            remap = false
     )
     private NonNullList<ItemStack> sbjeiindex_appendBackpackItems(Inventory inventory) {
         NonNullList<ItemStack> combined = NonNullList.create();
