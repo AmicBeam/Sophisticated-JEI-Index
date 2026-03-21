@@ -26,6 +26,9 @@ config="${mod_id}.rs.mixins.json"
 [[mixins]]
 config="${mod_id}.ts.mixins.json"
 
+[[mixins]]
+config="${mod_id}.bd.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
@@ -77,6 +80,13 @@ side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="toms_storage"
+type="optional"
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="beyonddimensions"
 type="optional"
 versionRange="[0,)"
 ordering="AFTER"

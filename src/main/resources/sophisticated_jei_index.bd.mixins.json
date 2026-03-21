@@ -1,0 +1,16 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.sbjeiindex.mixin.SBJEIIndexMixinPlugin",
+  "package": "com.sbjeiindex.mixin",
+  "client": [
+    "bd.CraftMenuRecipeTransferHandlerMixin",
+    "bd.CraftTerminalRecipeTransferHandlerMixin",
+    "bd.NetRecipeHandlerMixin"
+  ],
+  "mixins": [
+    "bd.AutoRefillResultSlotMixin",
+    "bd.DimensionsCraftMenuMixin"
+  ]
+}
