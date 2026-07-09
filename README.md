@@ -63,6 +63,7 @@ This project maintains separate branches per Minecraft/loader version:
 - Config option: `maxEnabledBackpacksScanned` (common config). Limits how many enabled backpacks are scanned per player. 0 means unlimited.
 - Nested backpacks exposed by Sophisticated Backpacks' Inception Upgrade are supported when the outer indexed backpack can access them.
 - Config option: `backpackSlotIdStride` (common config). Controls the virtual slot id space reserved for each indexed backpack source. Increase it if an Inception setup exposes more slots than the default; multiplayer clients and servers must use the same value.
+- Config option: `enableTransferWithoutUpgrade` (common config). When enabled, all equipped backpacks can provide recipe transfer ingredients without installing the upgrade; the upgrade item is hidden from the creative tab and JEI ingredient list but remains registered for existing storages.
 - Optional mod integrations are enabled only when the matching mod (and compatible version) is present.
 - On the 26.1.2 branch, EMI integration is not packaged by default because no compatible EMI 26.1.2 NeoForge build is available yet.
 - Tom's Storage is supported via JEI recipe transfer only. EMI is not supported.

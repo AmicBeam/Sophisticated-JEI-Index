@@ -25,7 +25,7 @@ public class SBJEIIndex {
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == SOPHISTICATED_BACKPACKS_TAB) {
+        if (event.getTabKey() == SOPHISTICATED_BACKPACKS_TAB && !SBJEIIndexConfig.enableTransferWithoutUpgrade.get()) {
             event.accept(ModItems.JEI_INDEX_UPGRADE.get());
         }
     }

@@ -63,6 +63,7 @@
 - 配置项：`maxEnabledBackpacksScanned`（common 配置），用于限制同一个玩家最多检索多少个启用该升级的背包，0 表示不限制。
 - 支持 Sophisticated Backpacks 的 Inception Upgrade 暴露出的内层背包材料，前提是外层已启用 JEI 索引升级且 Sophisticated Backpacks 配置允许外层升级访问内层背包。
 - 配置项：`backpackSlotIdStride`（common 配置），用于控制每个索引背包来源预留的虚拟槽位 ID 空间。若某个 Inception 组合暴露的槽位数超过默认值，可调大该值；多人游戏中客户端和服务端必须保持一致。
+- 配置项：`enableTransferWithoutUpgrade`（common 配置）。开启后，所有已装备背包即使没有安装该升级也可作为配方转移材料来源；升级物品会从创造模式标签页和 JEI 物品列表中隐藏，但仍保持注册，已有仓储中的物品不会丢失。
 - 与其它 Mod 的联动会在检测到对应 Mod（且版本兼容）时才启用。
 - 26.1.2 分支默认不打包 EMI 联动，因为当前尚无兼容 26.1.2 的 EMI NeoForge 构建。
 - Tom's Storage 仅支持 JEI 配方转移，EMI 不支持。
