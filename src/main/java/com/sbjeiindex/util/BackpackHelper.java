@@ -38,7 +38,7 @@ public class BackpackHelper {
             if (wrapper == null) {
                 return false;
             }
-            if (hasJEIIndexUpgrade(wrapper)) {
+            if (isEligibleBackpack(wrapper)) {
                 if (seen.add(wrapper)) {
                     results.add(wrapper);
                     if (maxScanned > 0 && results.size() >= maxScanned) {
@@ -81,6 +81,10 @@ public class BackpackHelper {
             }
         }
         return STORAGE_MENU_CLASS != null && STORAGE_MENU_CLASS.isInstance(menu);
+    }
+
+    private static boolean isEligibleBackpack(IBackpackWrapper backpackWrapper) {
+        return SBJEIIndexConfig.enableTransferWithoutUpgrade.get() || hasJEIIndexUpgrade(backpackWrapper);
     }
 
     private static boolean hasJEIIndexUpgrade(IBackpackWrapper backpackWrapper) {

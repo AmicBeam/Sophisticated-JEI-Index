@@ -52,6 +52,7 @@ This project maintains separate branches per Minecraft/loader version:
 - EMI recipe fill is a client action that sends a request to the server. For full functionality in multiplayer, EMI must be present on the server as well.
 - The backpack selection order follows Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.
 - Config option: `maxEnabledBackpacksScanned` (common config). Limits how many enabled backpacks are scanned per player. 0 means unlimited.
+- Config option: `enableTransferWithoutUpgrade` (common config). When enabled, all equipped backpacks can provide recipe transfer ingredients without installing the upgrade; the upgrade item is hidden from the creative tab and JEI ingredient list but remains registered for existing storages.
 - Nested backpacks (e.g. via Inception Upgrade) are not supported as ingredient sources.
 - Optional mod integrations are enabled only when the matching mod (and compatible version) is present.
 
