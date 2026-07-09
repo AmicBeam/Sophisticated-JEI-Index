@@ -98,12 +98,13 @@ public final class BackpackSnapshotCache {
             Map<Integer, ItemStack> nonEmptyStacks = new HashMap<>();
 
             int nonEmptyCount = 0;
+            int stride = JeiTransferConstants.getBackpackSlotIdStride();
             for (int backpackIndex = 0; backpackIndex < handlers.size(); backpackIndex++) {
                 IItemHandlerModifiable backpackHandler = handlers.get(backpackIndex);
-                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
                 OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 
-                int slots = backpackHandler.getSlots();
+                int slots = Math.min(backpackHandler.getSlots(), stride);
                 for (int i = 0; i < slots; i++) {
                     int slotId = baseOffset + i;
                     Slot slot = new SlotItemHandler(offsetHandler, slotId, 0, 0);

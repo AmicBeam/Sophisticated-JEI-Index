@@ -13,9 +13,7 @@ authors="amicbeam"
 
 [[mixins]]
 config="${mod_id}.mixins.json"
-
-[[mixins]]
-config="${mod_id}.emi.mixins.json"
+${emi_mixins_block}
 
 [[mixins]]
 config="${mod_id}.ae2.mixins.json"
@@ -56,13 +54,7 @@ type="required"
 versionRange="[0,)"
 ordering="AFTER"
 side="BOTH"
-
-[[dependencies.${mod_id}]]
-modId="emi"
-type="optional"
-versionRange="[0,)"
-ordering="AFTER"
-side="BOTH"
+${emi_dependency_block}
 
 [[dependencies.${mod_id}]]
 modId="ae2"

@@ -5,7 +5,7 @@ import com.sbjeiindex.util.BackpackHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,7 +40,7 @@ public class CraftingTermMenuMixin {
         }
 
         Player player = playerInventory.player;
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         if (handlers.isEmpty()) {
             return;
         }

@@ -5,7 +5,7 @@ import com.sbjeiindex.util.BackpackExtraction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,7 +23,7 @@ public class FillCraftingGridFromRecipePacketMixin {
             return;
         }
 
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         if (handlers.isEmpty()) {
             return;
         }

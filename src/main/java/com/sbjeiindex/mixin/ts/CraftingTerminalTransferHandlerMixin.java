@@ -4,7 +4,7 @@ import com.sbjeiindex.util.BackpackExtraction;
 import com.sbjeiindex.util.BackpackHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -29,7 +29,7 @@ public class CraftingTerminalTransferHandlerMixin {
         if (inventory == null || inventory.player == null || stack == null || stack.isEmpty()) {
             return -1;
         }
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(inventory.player);
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(inventory.player);
         if (handlers.isEmpty()) {
             return -1;
         }

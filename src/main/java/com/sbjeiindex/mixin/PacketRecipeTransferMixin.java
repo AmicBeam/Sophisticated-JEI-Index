@@ -116,7 +116,7 @@ public class PacketRecipeTransferMixin {
         }
 
         int encoded = slotIndex - JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET;
-        int stride = JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+        int stride = JeiTransferConstants.getBackpackSlotIdStride();
         if (stride <= 0) {
             return null;
         }

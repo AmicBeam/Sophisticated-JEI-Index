@@ -2,7 +2,7 @@ package com.sbjeiindex.util;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,19 +12,20 @@ public class BackpackExtraction {
     private BackpackExtraction() {
     }
 
-    public static List<int[]> createReservedCounts(List<? extends InventoryHandler> handlers) {
+    public static List<int[]> createReservedCounts(List<? extends IItemHandlerModifiable> handlers) {
         List<int[]> reserved = new ArrayList<>(handlers.size());
-        for (InventoryHandler handler : handlers) {
+        for (IItemHandlerModifiable handler : handlers) {
             if (handler == null) {
-                continue;
+                reserved.add(new int[0]);
+            } else {
+                reserved.add(new int[handler.getSlots()]);
             }
-            reserved.add(new int[handler.getSlots()]);
         }
         return reserved;
     }
 
-    public static ItemStack extractIngredient(List<? extends InventoryHandler> handlers, Ingredient ingredient) {
-        for (InventoryHandler handler : handlers) {
+    public static ItemStack extractIngredient(List<? extends IItemHandlerModifiable> handlers, Ingredient ingredient) {
+        for (IItemHandlerModifiable handler : handlers) {
             if (handler == null) {
                 continue;
             }
@@ -36,8 +37,8 @@ public class BackpackExtraction {
         return ItemStack.EMPTY;
     }
 
-    public static ItemStack extractFirstTemplateMatch(List<? extends InventoryHandler> handlers, ItemStack[] templates) {
-        for (InventoryHandler handler : handlers) {
+    public static ItemStack extractFirstTemplateMatch(List<? extends IItemHandlerModifiable> handlers, ItemStack[] templates) {
+        for (IItemHandlerModifiable handler : handlers) {
             if (handler == null) {
                 continue;
             }
@@ -49,10 +50,10 @@ public class BackpackExtraction {
         return ItemStack.EMPTY;
     }
 
-    public static boolean reserveIngredient(List<? extends InventoryHandler> handlers, List<int[]> reservedCounts, Ingredient ingredient) {
+    public static boolean reserveIngredient(List<? extends IItemHandlerModifiable> handlers, List<int[]> reservedCounts, Ingredient ingredient) {
         int n = Math.min(handlers.size(), reservedCounts.size());
         for (int i = 0; i < n; i++) {
-            InventoryHandler handler = handlers.get(i);
+            IItemHandlerModifiable handler = handlers.get(i);
             int[] reserved = reservedCounts.get(i);
             if (handler == null || reserved == null) {
                 continue;
@@ -64,10 +65,10 @@ public class BackpackExtraction {
         return false;
     }
 
-    public static boolean reserveFirstTemplateMatch(List<? extends InventoryHandler> handlers, List<int[]> reservedCounts, ItemStack[] templates) {
+    public static boolean reserveFirstTemplateMatch(List<? extends IItemHandlerModifiable> handlers, List<int[]> reservedCounts, ItemStack[] templates) {
         int n = Math.min(handlers.size(), reservedCounts.size());
         for (int i = 0; i < n; i++) {
-            InventoryHandler handler = handlers.get(i);
+            IItemHandlerModifiable handler = handlers.get(i);
             int[] reserved = reservedCounts.get(i);
             if (handler == null || reserved == null) {
                 continue;
@@ -79,8 +80,8 @@ public class BackpackExtraction {
         return false;
     }
 
-    public static boolean containsAnyTemplateMatch(List<? extends InventoryHandler> handlers, ItemStack[] templates) {
-        for (InventoryHandler handler : handlers) {
+    public static boolean containsAnyTemplateMatch(List<? extends IItemHandlerModifiable> handlers, ItemStack[] templates) {
+        for (IItemHandlerModifiable handler : handlers) {
             if (handler == null) {
                 continue;
             }
@@ -91,7 +92,7 @@ public class BackpackExtraction {
         return false;
     }
 
-    public static boolean containsAnyTemplateMatch(InventoryHandler handler, ItemStack[] templates) {
+    public static boolean containsAnyTemplateMatch(IItemHandlerModifiable handler, ItemStack[] templates) {
         if (handler == null) {
             return false;
         }
@@ -110,7 +111,7 @@ public class BackpackExtraction {
         return false;
     }
 
-    public static ItemStack extractFirstMatching(InventoryHandler handler, Predicate<ItemStack> matcher) {
+    public static ItemStack extractFirstMatching(IItemHandlerModifiable handler, Predicate<ItemStack> matcher) {
         int slots = handler.getSlots();
         for (int i = 0; i < slots; i++) {
             ItemStack stack = handler.getStackInSlot(i);
@@ -124,11 +125,11 @@ public class BackpackExtraction {
         return ItemStack.EMPTY;
     }
 
-    public static ItemStack extractIngredient(InventoryHandler handler, Ingredient ingredient) {
+    public static ItemStack extractIngredient(IItemHandlerModifiable handler, Ingredient ingredient) {
         return extractFirstMatching(handler, ingredient::test);
     }
 
-    public static ItemStack extractFirstTemplateMatch(InventoryHandler handler, ItemStack[] templates) {
+    public static ItemStack extractFirstTemplateMatch(IItemHandlerModifiable handler, ItemStack[] templates) {
         int slots = handler.getSlots();
         for (int i = 0; i < slots; i++) {
             ItemStack stack = handler.getStackInSlot(i);
@@ -148,7 +149,7 @@ public class BackpackExtraction {
         return ItemStack.EMPTY;
     }
 
-    public static boolean reserveIngredient(InventoryHandler handler, int[] reservedCounts, Ingredient ingredient) {
+    public static boolean reserveIngredient(IItemHandlerModifiable handler, int[] reservedCounts, Ingredient ingredient) {
         int slots = handler.getSlots();
         for (int i = 0; i < slots; i++) {
             ItemStack stack = handler.getStackInSlot(i);
@@ -164,7 +165,7 @@ public class BackpackExtraction {
         return false;
     }
 
-    public static boolean reserveFirstTemplateMatch(InventoryHandler handler, int[] reservedCounts, ItemStack[] templates) {
+    public static boolean reserveFirstTemplateMatch(IItemHandlerModifiable handler, int[] reservedCounts, ItemStack[] templates) {
         int slots = handler.getSlots();
         for (int i = 0; i < slots; i++) {
             ItemStack stack = handler.getStackInSlot(i);

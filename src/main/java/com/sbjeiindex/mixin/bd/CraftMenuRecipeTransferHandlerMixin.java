@@ -48,7 +48,7 @@ public class CraftMenuRecipeTransferHandlerMixin {
             inputSources.add(container.getSlot(i));
         }
 
-        List<ItemStack> baseInv = player.getInventory().items;
+        List<ItemStack> baseInv = player.getInventory().getNonEquipmentItems();
         ArrayList<ItemStack> expanded = new ArrayList<>(baseInv.size() + 64);
         expanded.addAll(baseInv);
 

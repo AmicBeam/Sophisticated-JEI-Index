@@ -10,7 +10,7 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 - ✅ Uses enabled backpacks in the selection order as extra ingredient sources
 - ✅ Also supports the crafting terminals of the following mods (priority: network → player inventory → enabled backpacks in order): AE2, Refined Storage, Tom's Storage
 - ✅ Supports shift-click max transfer and JEI complete-set semantics
-- ✅ Compatible with EMI recipe fill and recipe tree quick-craft (requires EMI on the server for multiplayer)
+- ✅ Compatible with EMI recipe fill and recipe tree quick-craft on branches with a matching EMI build (requires EMI on the server for multiplayer)
 
 ## Requirements
 
@@ -32,6 +32,15 @@ This project maintains separate branches per Minecraft/loader version:
   - JEI 19.x (Just Enough Items, NeoForge)
   - EMI (optional)
   - Curios (optional, only needed if you want Curios slot support)
+- **NeoForge (Minecraft 26.1.2)**: use branch `neoforge-26.1.2`
+  - Minecraft 26.1.2
+  - NeoForge 26.1.2.71+
+  - Java 25
+  - Sophisticated Core 26.1.2-1.4.76+
+  - Sophisticated Backpacks 26.1.2-3.25.76+
+  - JEI 29.6.x (Just Enough Items, NeoForge)
+  - AE2 26.1.x, Refined Storage 3.2.x, Beyond Dimensions 0.7.24+, and Tom's Storage 26.1 are optional integrations
+  - EMI integration is disabled on this branch until EMI publishes a compatible 26.1.2 NeoForge build
 
 ## Installation
 
@@ -49,11 +58,13 @@ This project maintains separate branches per Minecraft/loader version:
 ## Notes
 
 - JEI recipe transfer is a client action that sends a request to the server. For full functionality in multiplayer, JEI must be present on the server as well.
-- EMI recipe fill is a client action that sends a request to the server. For full functionality in multiplayer, EMI must be present on the server as well.
+- EMI recipe fill is a client action that sends a request to the server. For full functionality in multiplayer, EMI must be present on the server as well. The 26.1.2 branch does not package EMI integration until EMI publishes a compatible build.
 - The backpack selection order follows Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.
 - Config option: `maxEnabledBackpacksScanned` (common config). Limits how many enabled backpacks are scanned per player. 0 means unlimited.
-- Nested backpacks (e.g. via Inception Upgrade) are not supported as ingredient sources.
+- Nested backpacks exposed by Sophisticated Backpacks' Inception Upgrade are supported when the outer indexed backpack can access them.
+- Config option: `backpackSlotIdStride` (common config). Controls the virtual slot id space reserved for each indexed backpack source. Increase it if an Inception setup exposes more slots than the default; multiplayer clients and servers must use the same value.
 - Optional mod integrations are enabled only when the matching mod (and compatible version) is present.
+- On the 26.1.2 branch, EMI integration is not packaged by default because no compatible EMI 26.1.2 NeoForge build is available yet.
 - Tom's Storage is supported via JEI recipe transfer only. EMI is not supported.
 
 ## License

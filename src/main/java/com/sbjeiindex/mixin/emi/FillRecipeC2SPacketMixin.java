@@ -70,9 +70,10 @@ public class FillRecipeC2SPacketMixin {
                     backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
                 }
 
+                int stride = EmiTransferConstants.getBackpackSlotIdStride();
                 int relative = slotId - EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET;
-                int backpackIndex = relative / EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
-                int backpackSlot = relative % EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+                int backpackIndex = relative / stride;
+                int backpackSlot = relative % stride;
                 if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
                     EmiLog.warn("Client requested fill but passed input slots don't exist, aborting");
                     return;

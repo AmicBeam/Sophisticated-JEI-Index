@@ -106,8 +106,9 @@ public class BasicRecipeTransferHandlerMixin {
             backpackSlotCount = backpackSnapshot.totalBackpackSlots();
         } else {
             int count = 0;
+            int stride = JeiTransferConstants.getBackpackSlotIdStride();
             for (IItemHandlerModifiable handler : backpackHandlers) {
-                count += handler.getSlots();
+                count += Math.min(handler.getSlots(), stride);
             }
             backpackSlotCount = count;
         }
@@ -163,12 +164,14 @@ public class BasicRecipeTransferHandlerMixin {
             }
         } else {
             extraSlots = new HashMap<>();
+            int stride = JeiTransferConstants.getBackpackSlotIdStride();
             for (int backpackIndex = 0; backpackIndex < backpackHandlers.size(); backpackIndex++) {
                 IItemHandlerModifiable backpackHandler = backpackHandlers.get(backpackIndex);
-                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
                 OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 
-                for (int i = 0; i < backpackHandler.getSlots(); i++) {
+                int slots = Math.min(backpackHandler.getSlots(), stride);
+                for (int i = 0; i < slots; i++) {
                     int slotId = baseOffset + i;
                     Slot slot = new SlotItemHandler(offsetHandler, slotId, 0, 0);
                     slot.index = slotId;

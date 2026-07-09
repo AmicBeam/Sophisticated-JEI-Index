@@ -5,7 +5,7 @@ import com.sbjeiindex.util.BackpackHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,9 +29,9 @@ public class TerminalCraftingFillerMixin {
 
     @Inject(method = "placeRecipe", at = @At("HEAD"), remap = false)
     private void sbjeiindex_addBackpackItems(Recipe<?> recipe, CallbackInfo ci) {
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         if (!handlers.isEmpty()) {
-            for (InventoryHandler handler : handlers) {
+            for (IItemHandlerModifiable handler : handlers) {
                 if (handler == null) {
                     continue;
                 }
@@ -62,7 +62,7 @@ public class TerminalCraftingFillerMixin {
         if (inventory == null || inventory.player == null || stack == null || stack.isEmpty()) {
             return -1;
         }
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(inventory.player);
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(inventory.player);
         if (handlers.isEmpty()) {
             return -1;
         }
@@ -94,7 +94,7 @@ public class TerminalCraftingFillerMixin {
         if (template == null || template.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(inventory.player);
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(inventory.player);
         if (handlers.isEmpty()) {
             return ItemStack.EMPTY;
         }

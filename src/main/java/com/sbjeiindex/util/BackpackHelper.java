@@ -7,8 +7,9 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
-import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
+import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemResourceHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.function.Function;
 public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Map<IBackpackWrapper, Boolean> UPGRADE_REFRESH_ATTEMPTED = new WeakHashMap<>();
@@ -49,14 +49,17 @@ public class BackpackHelper {
         return results;
     }
 
-    public static List<InventoryHandler> getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(Player player) {
-        List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
-        return collectHandlers(wrappers, IBackpackWrapper::getInventoryHandler);
-    }
-
     public static List<IItemHandlerModifiable> getEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
         List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
-        return collectHandlers(wrappers, IBackpackWrapper::getInventoryHandler);
+        List<IItemHandlerModifiable> handlers = new ArrayList<>(wrappers.size());
+        Set<Object> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (IBackpackWrapper wrapper : wrappers) {
+            IItemHandlerModifiable handler = asLegacyItemHandler(wrapper.getInventoryForUpgradeProcessing());
+            if (handler != null && seen.add(handler)) {
+                handlers.add(handler);
+            }
+        }
+        return handlers;
     }
 
     @Nullable
@@ -91,7 +94,7 @@ public class BackpackHelper {
             }
 
             if (UPGRADE_REFRESH_ATTEMPTED.putIfAbsent(backpackWrapper, Boolean.TRUE) == null) {
-                backpackWrapper.onContentsNbtUpdated();
+                refreshUpgradeHandlers(backpackWrapper);
                 return !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
             }
             return false;
@@ -101,15 +104,75 @@ public class BackpackHelper {
         }
     }
 
-    private static <T> List<T> collectHandlers(List<IBackpackWrapper> wrappers, Function<IBackpackWrapper, T> getter) {
-        List<T> handlers = new ArrayList<>(wrappers.size());
-        Set<T> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (IBackpackWrapper wrapper : wrappers) {
-            T h = getter.apply(wrapper);
-            if (h != null && seen.add(h)) {
-                handlers.add(h);
-            }
+    private static void refreshUpgradeHandlers(IBackpackWrapper backpackWrapper) {
+        invokeNoArg(backpackWrapper, "refreshInventoryForUpgradeProcessing");
+        invokeNoArg(backpackWrapper, "onContentsUpdated");
+    }
+
+    private static void invokeNoArg(Object target, String methodName) {
+        try {
+            target.getClass().getMethod(methodName).invoke(target);
+        } catch (Exception e) {
         }
-        return handlers;
+    }
+
+    @Nullable
+    private static IItemHandlerModifiable asLegacyItemHandler(ITrackedContentsItemResourceHandler handler) {
+        if (handler instanceof IItemHandlerModifiable itemHandler) {
+            return itemHandler;
+        }
+        if (handler instanceof InventoryHandler inventoryHandler) {
+            return new InventoryHandlerAdapter(inventoryHandler);
+        }
+        return null;
+    }
+
+    private record InventoryHandlerAdapter(InventoryHandler inventoryHandler) implements IItemHandlerModifiable {
+        @Override
+        public int getSlots() {
+            return inventoryHandler.size();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return inventoryHandler.getStackInSlot(slot);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return stack;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            ItemStack stack = inventoryHandler.getStackInSlot(slot);
+            if (stack.isEmpty() || amount <= 0) {
+                return ItemStack.EMPTY;
+            }
+
+            int extractedCount = Math.min(amount, stack.getCount());
+            ItemStack extracted = stack.copyWithCount(extractedCount);
+            if (!simulate) {
+                ItemStack remaining = stack.copy();
+                remaining.shrink(extractedCount);
+                inventoryHandler.setStackInSlot(slot, remaining);
+            }
+            return extracted;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return inventoryHandler.getInternalSlotLimit(slot);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return inventoryHandler.isItemValid(slot, stack);
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack) {
+            inventoryHandler.setStackInSlot(slot, stack);
+        }
     }
 }

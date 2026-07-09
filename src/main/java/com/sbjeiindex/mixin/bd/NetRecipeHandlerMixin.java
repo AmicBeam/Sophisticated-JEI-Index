@@ -7,7 +7,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,15 +28,15 @@ public class NetRecipeHandlerMixin<T extends DimensionsCraftMenu> {
     )
     private NonNullList<ItemStack> sbjeiindex_appendBackpackItems(Inventory inventory) {
         NonNullList<ItemStack> combined = NonNullList.create();
-        combined.addAll(inventory.items);
+        combined.addAll(inventory.getNonEquipmentItems());
 
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return combined;
         }
 
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player);
-        for (InventoryHandler handler : handlers) {
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+        for (IItemHandlerModifiable handler : handlers) {
             for (int i = 0; i < handler.getSlots(); i++) {
                 ItemStack stack = handler.getStackInSlot(i);
                 if (!stack.isEmpty()) {

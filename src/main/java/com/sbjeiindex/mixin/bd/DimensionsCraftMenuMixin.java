@@ -3,7 +3,7 @@ package com.sbjeiindex.mixin.bd;
 import com.sbjeiindex.util.BackpackHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,12 +21,12 @@ public class DimensionsCraftMenuMixin {
             return;
         }
 
-        List<InventoryHandler> handlers = BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(inventory.player);
+        List<IItemHandlerModifiable> handlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(inventory.player);
         if (handlers.isEmpty()) {
             return;
         }
 
-        for (InventoryHandler handler : handlers) {
+        for (IItemHandlerModifiable handler : handlers) {
             if (handler == null) {
                 continue;
             }

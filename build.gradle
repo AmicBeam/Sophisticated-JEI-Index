@@ -2,25 +2,27 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.14'
+    id 'net.neoforged.moddev' version '2.0.141'
 }
 
-version = mod_version
+version = "${mod_version}+${minecraft_version}"
 group = mod_group_id
 
 base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
     mavenCentral()
-    maven { url "https://www.cursemaven.com"
-        content { includeGroup "curse.maven" }
+    maven {
+        name = 'ModMaven'
+        url = 'https://modmaven.dev'
     }
-    maven { url "https://maven.blamejared.com/"
-        content { includeGroup "mezz.jei" }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
     }
     maven {
         name = "TerraformersMC"
@@ -31,11 +33,6 @@ repositories {
 
 neoForge {
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     runs {
         configureEach {
@@ -64,20 +61,55 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+def includeEmiCompat = (findProperty('include_emi_compat') ?: 'false').toString().toBoolean()
+
+sourceSets {
+    main {
+        if (!includeEmiCompat) {
+            java {
+                exclude 'com/sbjeiindex/emi/**'
+                exclude 'com/sbjeiindex/mixin/emi/**'
+            }
+            resources {
+                exclude "${mod_id}.emi.mixins.json"
+            }
+        }
+    }
+}
+
 dependencies {
-    implementation "curse.maven:sophisticated-core-${sc_curse_id}:${sc_file_id}"
-    implementation "curse.maven:sophisticated-backpacks-${sb_curse_id}:${sb_file_id}"
+    implementation "maven.modrinth:sophisticated-core:${sophisticated_core_version}"
+    implementation "maven.modrinth:sophisticated-backpacks:${sophisticated_backpacks_version}"
 
-    compileOnly "mezz.jei:jei-${jei_mc_version}:${jei_version}"
-    localRuntime "mezz.jei:jei-${jei_mc_version}:${jei_version}"
+    compileOnly "maven.modrinth:jei:${jei_version}"
+    localRuntime "maven.modrinth:jei:${jei_version}"
 
-    compileOnly "dev.emi:emi-neoforge:${emi_version}"
-    localRuntime "dev.emi:emi-neoforge:${emi_version}"
+    compileOnly "maven.modrinth:ae2:${ae2_version}"
+    compileOnly "maven.modrinth:refined-storage:${refined_storage_version}"
+    compileOnly "maven.modrinth:beyonddimensions:${beyond_dimensions_version}"
 
-    compileOnly "curse.maven:beyond-dimensions-1222890:${bd_version}"
+    if (includeEmiCompat) {
+        if (!emi_version) {
+            throw new GradleException("include_emi_compat=true requires emi_version to be set to a compatible 26.1.2 EMI build")
+        }
+        compileOnly "dev.emi:emi-neoforge:${emi_version}"
+        localRuntime "dev.emi:emi-neoforge:${emi_version}"
+    }
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var emiMixinsBlock = includeEmiCompat ? """
+[[mixins]]
+config="${mod_id}.emi.mixins.json"
+""" : ""
+    var emiDependencyBlock = includeEmiCompat ? """
+[[dependencies.${mod_id}]]
+modId="emi"
+type="optional"
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
+""" : ""
     var replaceProperties = [
             minecraft_version   : minecraft_version,
             minecraft_version_range: minecraft_version_range,
@@ -86,7 +118,9 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             loader_version_range: loader_version_range,
             mod_id              : mod_id,
             mod_version         : mod_version,
-            mod_description     : mod_description
+            mod_description     : mod_description,
+            emi_mixins_block    : emiMixinsBlock,
+            emi_dependency_block: emiDependencyBlock
     ]
     inputs.properties replaceProperties
 
