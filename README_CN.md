@@ -52,6 +52,7 @@
 - EMI 配方转移需要向服务端发送请求。多人游戏中为了完整功能，服务端也需要安装 EMI。
 - 背包的判定顺序与 Sophisticated Backpacks 的 B 键逻辑一致，仅筛选启用该升级的背包。
 - 配置项：`maxEnabledBackpacksScanned`（common 配置），用于限制同一个玩家最多检索多少个启用该升级的背包，0 表示不限制。
+- 配置项：`enableTransferWithoutUpgrade`（common 配置）。开启后，所有已装备背包即使没有安装该升级也可作为配方转移材料来源；升级物品会从创造模式标签页和 JEI 物品列表中隐藏，但仍保持注册，已有仓储中的物品不会丢失。
 - 不支持将嵌套升级（如 Inception Upgrade）打开的内层背包作为材料来源。
 - 与其它 Mod 的联动会在检测到对应 Mod（且版本兼容）时才启用。
 - Tom's Storage 仅支持 JEI 配方转移，EMI 不支持。
