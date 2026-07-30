@@ -4,7 +4,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,7 +105,7 @@ public final class BackpackSnapshotCache {
                 int slots = backpackHandler.getSlots();
                 for (int i = 0; i < slots; i++) {
                     int slotId = baseOffset + i;
-                    Slot slot = new SlotItemHandler(offsetHandler, slotId, 0, 0);
+                    Slot slot = new BackpackTransferSlot(offsetHandler, slotId, 0, 0);
                     slot.index = slotId;
                     backpackSlots.add(slot);
                     extraSlots.put(slotId, slot);

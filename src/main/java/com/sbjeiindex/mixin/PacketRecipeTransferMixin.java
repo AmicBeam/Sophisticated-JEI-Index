@@ -1,5 +1,6 @@
 package com.sbjeiindex.mixin;
 
+import com.sbjeiindex.jei.BackpackTransferSlot;
 import com.sbjeiindex.jei.JeiSlotResolver;
 import com.sbjeiindex.jei.JeiTransferConstants;
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
@@ -15,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
@@ -100,7 +100,7 @@ public class PacketRecipeTransferMixin {
                         offsetHandlers[backpackIndex] = offsetHandler;
                     }
                 }
-                Slot slot = new SlotItemHandler(offsetHandler, slotIndex, 0, 0);
+                Slot slot = new BackpackTransferSlot(offsetHandler, slotIndex, 0, 0);
                 slot.index = slotIndex;
                 inventorySlots.add(slot);
                 extraSlots.put(slotIndex, slot);
