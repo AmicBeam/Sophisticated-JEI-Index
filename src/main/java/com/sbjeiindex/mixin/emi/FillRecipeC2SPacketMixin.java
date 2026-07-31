@@ -6,6 +6,7 @@ import com.sbjeiindex.emi.transfer.EmiFillHelper;
 import com.sbjeiindex.emi.transfer.EmiInputSource;
 import com.sbjeiindex.emi.transfer.MenuSlotSource;
 import com.sbjeiindex.util.BackpackHelper;
+import com.sbjeiindex.util.BackpackHelper.IndexedBackpackHandler;
 import dev.emi.emi.network.FillRecipeC2SPacket;
 import dev.emi.emi.runtime.EmiLog;
 import net.minecraft.world.entity.player.Player;
@@ -60,26 +61,24 @@ public class FillRecipeC2SPacketMixin {
             return;
         }
 
-        List<IItemHandlerModifiable> backpackHandlers = null;
+        java.util.Map<Integer, IItemHandlerModifiable> backpackHandlers = null;
         List<EmiInputSource> inputSources = new ArrayList<>();
         for (int slotId : slots) {
             if (slotId >= 0 && slotId < menu.slots.size()) {
                 inputSources.add(new MenuSlotSource(menu.slots.get(slotId)));
             } else if (slotId >= EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET) {
                 if (backpackHandlers == null) {
-                    backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+                    backpackHandlers = new java.util.HashMap<>();
+                    for (IndexedBackpackHandler indexed : BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player)) {
+                        backpackHandlers.put(indexed.index(), indexed.handler());
+                    }
                 }
 
                 int relative = slotId - EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET;
                 int backpackIndex = relative / EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
                 int backpackSlot = relative % EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
-                if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
-                    EmiLog.warn("Client requested fill but passed input slots don't exist, aborting");
-                    return;
-                }
-
                 IItemHandlerModifiable handler = backpackHandlers.get(backpackIndex);
-                if (backpackSlot < 0 || backpackSlot >= handler.getSlots()) {
+                if (handler == null || backpackSlot < 0 || backpackSlot >= handler.getSlots()) {
                     EmiLog.warn("Client requested fill but passed input slots don't exist, aborting");
                     return;
                 }

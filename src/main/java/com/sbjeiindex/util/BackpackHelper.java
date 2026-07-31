@@ -30,17 +30,25 @@ public class BackpackHelper {
     private static boolean STORAGE_MENU_CLASS_CHECKED;
 
     public static List<IBackpackWrapper> getEquippedBackpacksWithJEIIndexUpgrade(Player player) {
+        return getIndexedEquippedBackpacksWithJEIIndexUpgrade(player).stream()
+            .map(IndexedBackpack::wrapper)
+            .toList();
+    }
+
+    private static List<IndexedBackpack> getIndexedEquippedBackpacksWithJEIIndexUpgrade(Player player) {
         int maxScanned = SBJEIIndexConfig.maxEnabledBackpacksScanned.get();
-        List<IBackpackWrapper> results = new ArrayList<>();
+        List<IndexedBackpack> results = new ArrayList<>();
         Set<IBackpackWrapper> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        int[] backpackIndex = {0};
         PlayerInventoryProvider.get().runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
+            int index = backpackIndex[0]++;
             IBackpackWrapper wrapper = getBackpackWrapper(backpack);
             if (wrapper == null) {
                 return false;
             }
             if (isEligibleBackpack(wrapper)) {
                 if (seen.add(wrapper)) {
-                    results.add(wrapper);
+                    results.add(new IndexedBackpack(index, wrapper));
                     if (maxScanned > 0 && results.size() >= maxScanned) {
                         return true;
                     }
@@ -57,9 +65,27 @@ public class BackpackHelper {
     }
 
     public static List<IItemHandlerModifiable> getEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
-        List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
-        return collectHandlers(wrappers, IBackpackWrapper::getInventoryHandler);
+        return getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player).stream()
+            .map(IndexedBackpackHandler::handler)
+            .toList();
     }
+
+    public static List<IndexedBackpackHandler> getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
+        List<IndexedBackpack> backpacks = getIndexedEquippedBackpacksWithJEIIndexUpgrade(player);
+        List<IndexedBackpackHandler> handlers = new ArrayList<>(backpacks.size());
+        Set<IItemHandlerModifiable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (IndexedBackpack backpack : backpacks) {
+            IItemHandlerModifiable handler = backpack.wrapper().getInventoryHandler();
+            if (handler != null && seen.add(handler)) {
+                handlers.add(new IndexedBackpackHandler(backpack.index(), handler));
+            }
+        }
+        return handlers;
+    }
+
+    private record IndexedBackpack(int index, IBackpackWrapper wrapper) {}
+
+    public record IndexedBackpackHandler(int index, IItemHandlerModifiable handler) {}
 
     @Nullable
     private static IBackpackWrapper getBackpackWrapper(ItemStack stack) {

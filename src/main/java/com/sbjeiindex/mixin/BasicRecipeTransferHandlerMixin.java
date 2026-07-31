@@ -6,6 +6,7 @@ import com.sbjeiindex.jei.JeiSlotResolver;
 import com.sbjeiindex.jei.JeiTransferConstants;
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
+import com.sbjeiindex.util.BackpackHelper.IndexedBackpackHandler;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
@@ -60,10 +61,11 @@ public class BasicRecipeTransferHandlerMixin {
         boolean doTransfer,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
-        List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
-        if (backpackHandlers.isEmpty()) {
+        List<IndexedBackpackHandler> indexedBackpackHandlers = BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+        if (indexedBackpackHandlers.isEmpty()) {
             return;
         }
+        List<IItemHandlerModifiable> backpackHandlers = indexedBackpackHandlers.stream().map(IndexedBackpackHandler::handler).toList();
 
         if (!serverConnection.isJeiOnServer()) {
             Component tooltipMessage = Component.translatable("jei.tooltip.error.recipe.transfer.no.server");
@@ -102,7 +104,7 @@ public class BasicRecipeTransferHandlerMixin {
         BackpackSnapshotCache.BackpackSnapshot backpackSnapshot = null;
         int backpackSlotCount;
         if (!doTransfer) {
-            backpackSnapshot = BackpackSnapshotCache.getOrCreate(container, backpackHandlers);
+            backpackSnapshot = BackpackSnapshotCache.getOrCreateIndexed(container, indexedBackpackHandlers);
             backpackSlotCount = backpackSnapshot.totalBackpackSlots();
         } else {
             int count = 0;
@@ -164,8 +166,9 @@ public class BasicRecipeTransferHandlerMixin {
         } else {
             extraSlots = new HashMap<>();
             for (int backpackIndex = 0; backpackIndex < backpackHandlers.size(); backpackIndex++) {
-                IItemHandlerModifiable backpackHandler = backpackHandlers.get(backpackIndex);
-                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+                IndexedBackpackHandler indexedHandler = indexedBackpackHandlers.get(backpackIndex);
+                IItemHandlerModifiable backpackHandler = indexedHandler.handler();
+                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + indexedHandler.index() * JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
                 OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 
                 for (int i = 0; i < backpackHandler.getSlots(); i++) {

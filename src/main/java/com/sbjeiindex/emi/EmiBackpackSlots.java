@@ -2,6 +2,7 @@ package com.sbjeiindex.emi;
 
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
+import com.sbjeiindex.util.BackpackHelper.IndexedBackpackHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -14,7 +15,8 @@ public final class EmiBackpackSlots {
     }
 
     public static List<Slot> create(Player player) {
-        List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+        List<IndexedBackpackHandler> indexedBackpackHandlers = BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+        List<IItemHandlerModifiable> backpackHandlers = indexedBackpackHandlers.stream().map(IndexedBackpackHandler::handler).toList();
         if (backpackHandlers.isEmpty()) {
             return List.of();
         }
@@ -26,8 +28,9 @@ public final class EmiBackpackSlots {
 
         List<Slot> slots = new ArrayList<>(totalSlots);
         for (int backpackIndex = 0; backpackIndex < backpackHandlers.size(); backpackIndex++) {
-            IItemHandlerModifiable backpackHandler = backpackHandlers.get(backpackIndex);
-            int baseOffset = EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+            IndexedBackpackHandler indexedHandler = indexedBackpackHandlers.get(backpackIndex);
+            IItemHandlerModifiable backpackHandler = indexedHandler.handler();
+            int baseOffset = EmiTransferConstants.BACKPACK_SLOT_ID_OFFSET + indexedHandler.index() * EmiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
             OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 
             for (int i = 0; i < backpackHandler.getSlots(); i++) {
