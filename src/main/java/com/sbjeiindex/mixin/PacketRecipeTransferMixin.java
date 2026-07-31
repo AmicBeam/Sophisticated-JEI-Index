@@ -5,6 +5,7 @@ import com.sbjeiindex.jei.JeiSlotResolver;
 import com.sbjeiindex.jei.JeiTransferConstants;
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
+import com.sbjeiindex.util.BackpackHelper.IndexedBackpackHandler;
 import mezz.jei.common.network.ServerPacketContext;
 import mezz.jei.common.network.packets.PacketRecipeTransfer;
 import mezz.jei.common.transfer.BasicRecipeTransferHandlerServer;
@@ -52,8 +53,11 @@ public class PacketRecipeTransferMixin {
         ServerPlayer player = context.player();
         AbstractContainerMenu container = player.containerMenu;
 
-        List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
-        OffsetItemHandlerModifiable[] offsetHandlers = backpackHandlers.isEmpty() ? null : new OffsetItemHandlerModifiable[backpackHandlers.size()];
+        Map<Integer, IItemHandlerModifiable> backpackHandlers = new HashMap<>();
+        for (IndexedBackpackHandler indexed : BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player)) {
+            backpackHandlers.put(indexed.index(), indexed.handler());
+        }
+        Map<Integer, OffsetItemHandlerModifiable> offsetHandlers = new HashMap<>();
 
         List<Slot> craftingSlotsResolved = new ArrayList<>(craftingSlots.size());
         List<Slot> inventorySlotsResolved = new ArrayList<>(inventorySlots.size());
@@ -101,8 +105,8 @@ public class PacketRecipeTransferMixin {
     private static Slot resolveSlot(
         AbstractContainerMenu container,
         int slotIndex,
-        List<IItemHandlerModifiable> backpackHandlers,
-        OffsetItemHandlerModifiable[] offsetHandlers,
+        Map<Integer, IItemHandlerModifiable> backpackHandlers,
+        Map<Integer, OffsetItemHandlerModifiable> offsetHandlers,
         Map<Integer, Slot> extraSlots
     ) {
         if (slotIndex < JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET) {
@@ -123,22 +127,16 @@ public class PacketRecipeTransferMixin {
 
         int backpackIndex = encoded / stride;
         int innerSlot = encoded % stride;
-        if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
-            return null;
-        }
-
         IItemHandlerModifiable handler = backpackHandlers.get(backpackIndex);
         if (handler == null || innerSlot < 0 || innerSlot >= handler.getSlots()) {
             return null;
         }
 
-        OffsetItemHandlerModifiable offsetHandler = offsetHandlers == null ? null : offsetHandlers[backpackIndex];
+        OffsetItemHandlerModifiable offsetHandler = offsetHandlers.get(backpackIndex);
         if (offsetHandler == null) {
             int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
             offsetHandler = new OffsetItemHandlerModifiable(handler, baseOffset);
-            if (offsetHandlers != null) {
-                offsetHandlers[backpackIndex] = offsetHandler;
-            }
+            offsetHandlers.put(backpackIndex, offsetHandler);
         }
         Slot slot = new BackpackTransferSlot(offsetHandler, slotIndex, 0, 0);
         slot.index = slotIndex;
