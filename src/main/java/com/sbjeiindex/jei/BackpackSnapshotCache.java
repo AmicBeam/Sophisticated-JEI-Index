@@ -4,6 +4,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import com.sbjeiindex.util.BackpackHelper.IndexedBackpackHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,14 @@ public final class BackpackSnapshotCache {
     }
 
     public static BackpackSnapshot getOrCreate(AbstractContainerMenu container, List<IItemHandlerModifiable> handlers) {
+        List<IndexedBackpackHandler> indexedHandlers = new ArrayList<>(handlers.size());
+        for (int i = 0; i < handlers.size(); i++) {
+            indexedHandlers.add(new IndexedBackpackHandler(i, handlers.get(i)));
+        }
+        return getOrCreateIndexed(container, indexedHandlers);
+    }
+
+    public static BackpackSnapshot getOrCreateIndexed(AbstractContainerMenu container, List<IndexedBackpackHandler> handlers) {
         BackpackSnapshot existing = BY_CONTAINER.get(container);
         if (existing != null && sameHandlers(existing.handlers, handlers)) {
             return existing;
@@ -27,7 +36,7 @@ public final class BackpackSnapshotCache {
         return snapshot;
     }
 
-    private static boolean sameHandlers(List<IItemHandlerModifiable> a, List<IItemHandlerModifiable> b) {
+    private static boolean sameHandlers(List<IndexedBackpackHandler> a, List<IndexedBackpackHandler> b) {
         if (a == b) {
             return true;
         }
@@ -35,7 +44,7 @@ public final class BackpackSnapshotCache {
             return false;
         }
         for (int i = 0; i < a.size(); i++) {
-            if (a.get(i) != b.get(i)) {
+            if (a.get(i).index() != b.get(i).index() || a.get(i).handler() != b.get(i).handler()) {
                 return false;
             }
         }
@@ -43,7 +52,7 @@ public final class BackpackSnapshotCache {
     }
 
     public static final class BackpackSnapshot {
-        private final List<IItemHandlerModifiable> handlers;
+        private final List<IndexedBackpackHandler> handlers;
         private final List<Slot> backpackSlots;
         private final Map<Integer, Slot> extraSlots;
         private final Map<Integer, ItemStack> nonEmptyStacks;
@@ -51,7 +60,7 @@ public final class BackpackSnapshotCache {
         private final int emptyBackpackSlots;
 
         private BackpackSnapshot(
-            List<IItemHandlerModifiable> handlers,
+            List<IndexedBackpackHandler> handlers,
             List<Slot> backpackSlots,
             Map<Integer, Slot> extraSlots,
             Map<Integer, ItemStack> nonEmptyStacks,
@@ -86,10 +95,10 @@ public final class BackpackSnapshotCache {
             return emptyBackpackSlots;
         }
 
-        private static BackpackSnapshot build(List<IItemHandlerModifiable> handlers) {
+        private static BackpackSnapshot build(List<IndexedBackpackHandler> handlers) {
             int totalSlots = 0;
-            for (IItemHandlerModifiable handler : handlers) {
-                totalSlots += handler.getSlots();
+            for (IndexedBackpackHandler handler : handlers) {
+                totalSlots += handler.handler().getSlots();
             }
 
             List<Slot> backpackSlots = new ArrayList<>(totalSlots);
@@ -99,8 +108,9 @@ public final class BackpackSnapshotCache {
             int nonEmptyCount = 0;
             int stride = JeiTransferConstants.getBackpackSlotIdStride();
             for (int backpackIndex = 0; backpackIndex < handlers.size(); backpackIndex++) {
-                IItemHandlerModifiable backpackHandler = handlers.get(backpackIndex);
-                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
+                IndexedBackpackHandler indexedHandler = handlers.get(backpackIndex);
+                IItemHandlerModifiable backpackHandler = indexedHandler.handler();
+                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + indexedHandler.index() * stride;
                 OffsetItemHandlerModifiable offsetHandler = new OffsetItemHandlerModifiable(backpackHandler, baseOffset);
 
                 int slots = Math.min(backpackHandler.getSlots(), stride);
