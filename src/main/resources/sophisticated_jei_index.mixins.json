@@ -2,14 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_21",
-  "plugin": "com.sbjeiindex.mixin.SBJEIIndexMixinPlugin",
   "package": "com.sbjeiindex.mixin",
-  "client": [
-    "BasicRecipeTransferHandlerMixin"
-  ],
-  "mixins": [
-    "PacketRecipeTransferMixin",
-    "RecipeTransferUtilMixin",
-    "TransferOperationMixin"
-  ]
+  "client": [],
+  "mixins": []
 }

@@ -2,6 +2,7 @@ package com.sbjeiindex;
 
 import com.sbjeiindex.config.SBJEIIndexConfig;
 import com.sbjeiindex.init.ModItems;
+import com.sbjeiindex.network.ModPayloads;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -21,6 +22,7 @@ public class SBJEIIndex {
     public SBJEIIndex(IEventBus modBus, Dist dist, ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, SBJEIIndexConfig.SPEC);
         ModItems.ITEMS.register(modBus);
+        modBus.addListener(ModPayloads::register);
         modBus.addListener(this::addCreative);
     }
 
