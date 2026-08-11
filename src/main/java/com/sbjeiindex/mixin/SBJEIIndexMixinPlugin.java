@@ -27,6 +27,7 @@ public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
         if (!jeiInternalsPresent && mixinClassName.startsWith("com.sbjeiindex.mixin.")) {
             if (mixinClassName.endsWith("BasicRecipeTransferHandlerMixin")
                 || mixinClassName.endsWith("PacketRecipeTransferMixin")
+                || mixinClassName.endsWith("RecipeTransferUtilMixin")
                 || mixinClassName.endsWith("TransferOperationMixin")) {
                 return false;
             }
