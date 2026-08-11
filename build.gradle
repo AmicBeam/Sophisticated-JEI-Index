@@ -70,7 +70,7 @@ tasks.named('jar', Jar).configure {
                 'Specification-Version'   : '1',
                 'Implementation-Title'    : project.name,
                 'Implementation-Version'  : project.version,
-                'MixinConfigs'            : "${mod_id}.mixins.json,${mod_id}.emi.mixins.json,${mod_id}.ae2.mixins.json,${mod_id}.rs.mixins.json,${mod_id}.ts.mixins.json,${mod_id}.bd.mixins.json"
+                'MixinConfigs'            : "${mod_id}.emi.mixins.json,${mod_id}.ae2.mixins.json,${mod_id}.rs.mixins.json,${mod_id}.ts.mixins.json,${mod_id}.bd.mixins.json"
         ])
     }
 }
