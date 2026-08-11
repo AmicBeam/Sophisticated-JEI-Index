@@ -16,14 +16,12 @@ import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class VanillaCraftingTransferHandler implements IRecipeTransferHandler<CraftingMenu, RecipeHolder<CraftingRecipe>> {
@@ -82,14 +80,15 @@ public class VanillaCraftingTransferHandler implements IRecipeTransferHandler<Cr
             }
         });
 
-        Map<Integer, Ingredient> ingredients = helper.getGuiSlotIndexToIngredientMap(recipe);
-        CraftingTransferPlanner.Plan plan = CraftingTransferPlanner.plan(ingredients, available, maxTransfer);
+        List<IRecipeSlotView> inputSlots = recipeSlots.getSlotViews(mezz.jei.api.recipe.RecipeIngredientRole.INPUT);
+        List<List<ItemStack>> candidates = inputSlots.stream()
+            .map(slot -> slot.getItemStacks().toList())
+            .toList();
+        CraftingTransferPlanner.Plan plan = CraftingTransferPlanner.plan(candidates, available, maxTransfer);
         if (plan == null) {
-            List<IRecipeSlotView> inputSlots = recipeSlots.getSlotViews(mezz.jei.api.recipe.RecipeIngredientRole.INPUT);
-            List<IRecipeSlotView> missing = ingredients.keySet().stream()
-                .filter(index -> available.stream().noneMatch(ingredients.get(index)::test))
-                .filter(index -> index >= 0 && index < inputSlots.size())
-                .map(inputSlots::get)
+            List<IRecipeSlotView> missing = inputSlots.stream()
+                .filter(slot -> !slot.isEmpty())
+                .filter(slot -> available.stream().noneMatch(stack -> slot.getItemStacks().anyMatch(candidate -> sameItem(candidate, stack))))
                 .toList();
             if (missing.isEmpty()) {
                 missing = inputSlots.stream().limit(1).toList();
@@ -108,5 +107,9 @@ public class VanillaCraftingTransferHandler implements IRecipeTransferHandler<Cr
             ));
         }
         return null;
+    }
+
+    private static boolean sameItem(ItemStack first, ItemStack second) {
+        return !first.isEmpty() && !second.isEmpty() && first.is(second.getItem());
     }
 }

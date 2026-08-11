@@ -1,13 +1,11 @@
 package com.sbjeiindex.transfer;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public final class CraftingTransferPlanner {
     private CraftingTransferPlanner() {}
@@ -15,14 +13,14 @@ public final class CraftingTransferPlanner {
     public record Plan(List<ItemStack> templates, int sets) {}
 
     @Nullable
-    public static Plan plan(Map<Integer, Ingredient> ingredients, List<ItemStack> stacks, boolean maxTransfer) {
+    public static Plan plan(List<List<ItemStack>> candidatesBySlot, List<ItemStack> stacks, boolean maxTransfer) {
         List<ItemStack> types = mergeTypes(stacks);
         int high = maxTransfer ? 64 : 1;
         Plan best = null;
         int low = 1;
         while (low <= high) {
             int middle = (low + high) >>> 1;
-            List<ItemStack> selected = select(ingredients, types, middle);
+            List<ItemStack> selected = select(candidatesBySlot, types, middle);
             if (selected != null) {
                 best = new Plan(selected, middle);
                 low = middle + 1;
@@ -34,19 +32,25 @@ public final class CraftingTransferPlanner {
     }
 
     @Nullable
-    private static List<ItemStack> select(Map<Integer, Ingredient> ingredients, List<ItemStack> types, int sets) {
+    private static List<ItemStack> select(List<List<ItemStack>> candidatesBySlot, List<ItemStack> types, int sets) {
         List<Cell> cells = new ArrayList<>();
-        for (Map.Entry<Integer, Ingredient> entry : ingredients.entrySet()) {
+        for (int slot = 0; slot < Math.min(9, candidatesBySlot.size()); slot++) {
+            List<ItemStack> displayed = candidatesBySlot.get(slot);
+            if (displayed.isEmpty()) {
+                continue;
+            }
             List<Integer> candidates = new ArrayList<>();
             for (int type = 0; type < types.size(); type++) {
-                if (entry.getValue().test(types.get(type)) && types.get(type).getCount() >= sets) {
+                ItemStack available = types.get(type);
+                if (displayed.stream().anyMatch(candidate -> !candidate.isEmpty() && candidate.is(available.getItem()))
+                    && available.getCount() >= sets) {
                     candidates.add(type);
                 }
             }
             if (candidates.isEmpty()) {
                 return null;
             }
-            cells.add(new Cell(entry.getKey(), candidates));
+            cells.add(new Cell(slot, candidates));
         }
         cells.sort(Comparator.comparingInt(cell -> cell.candidates().size()));
         int[] used = new int[types.size()];

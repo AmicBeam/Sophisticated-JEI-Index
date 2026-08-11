@@ -12,9 +12,6 @@ credits="JEI recipe transfer integration for Sophisticated Backpacks"
 authors="amicbeam"
 
 [[mixins]]
-config="${mod_id}.mixins.json"
-
-[[mixins]]
 config="${mod_id}.emi.mixins.json"
 
 [[mixins]]
