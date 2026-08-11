@@ -63,6 +63,17 @@ public class BackpackHelper {
             .toList();
     }
 
+    public static List<InventoryHandler> getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(Player player) {
+        List<InventoryHandler> handlers = new ArrayList<>();
+        Set<InventoryHandler> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (IndexedBackpack backpack : getIndexedEquippedBackpacksWithJEIIndexUpgrade(player)) {
+            if (backpack.wrapper().getInventoryForUpgradeProcessing() instanceof InventoryHandler handler && seen.add(handler)) {
+                handlers.add(handler);
+            }
+        }
+        return handlers;
+    }
+
     public static List<IndexedBackpackHandler> getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
         List<IndexedBackpack> backpacks = getIndexedEquippedBackpacksWithJEIIndexUpgrade(player);
         List<IndexedBackpackHandler> handlers = new ArrayList<>(backpacks.size());
