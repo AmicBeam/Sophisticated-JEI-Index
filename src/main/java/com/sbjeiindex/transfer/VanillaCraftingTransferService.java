@@ -4,6 +4,7 @@ import com.sbjeiindex.network.VanillaRecipeTransferPayload;
 import com.sbjeiindex.util.BackpackHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -42,6 +43,9 @@ public final class VanillaCraftingTransferService {
         }
         Transaction transaction = new Transaction(menu, backpacks);
         int sets = payload.maxTransfer() ? transaction.maxSets(templates) : 1;
+        if (payload.requestedSets() > 0) {
+            sets = Math.min(sets, payload.requestedSets());
+        }
         if (sets < 1 || !transaction.apply(templates, sets)) {
             transaction.rollback();
             return;
@@ -51,6 +55,11 @@ public final class VanillaCraftingTransferService {
             return;
         }
         menu.broadcastChanges();
+        if (payload.action() == 1) {
+            menu.clicked(0, 0, ClickType.PICKUP, player);
+        } else if (payload.action() == 2) {
+            menu.clicked(0, 0, ClickType.QUICK_MOVE, player);
+        }
     }
 
     private static List<ItemStack> currentGrid(CraftingMenu menu) {

@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record VanillaRecipeTransferPayload(int containerId, ResourceLocation recipeId,
-                                           List<ItemStack> templates, boolean maxTransfer)
+                                           List<ItemStack> templates, boolean maxTransfer,
+                                           int requestedSets, int action)
     implements CustomPacketPayload {
     public static final Type<VanillaRecipeTransferPayload> TYPE = new Type<>(
         ResourceLocation.fromNamespaceAndPath(SBJEIIndex.MOD_ID, "vanilla_recipe_transfer")
@@ -26,6 +27,8 @@ public record VanillaRecipeTransferPayload(int containerId, ResourceLocation rec
         buffer.writeVarInt(payload.containerId);
         ResourceLocation.STREAM_CODEC.encode(buffer, payload.recipeId);
         buffer.writeBoolean(payload.maxTransfer);
+        buffer.writeVarInt(payload.requestedSets);
+        buffer.writeByte(payload.action);
         for (int i = 0; i < 9; i++) {
             ItemStack stack = i < payload.templates.size() ? payload.templates.get(i) : ItemStack.EMPTY;
             ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, stack);
@@ -36,11 +39,13 @@ public record VanillaRecipeTransferPayload(int containerId, ResourceLocation rec
         int containerId = buffer.readVarInt();
         ResourceLocation recipeId = ResourceLocation.STREAM_CODEC.decode(buffer);
         boolean maxTransfer = buffer.readBoolean();
+        int requestedSets = buffer.readVarInt();
+        int action = buffer.readUnsignedByte();
         List<ItemStack> templates = new ArrayList<>(9);
         for (int i = 0; i < 9; i++) {
             templates.add(ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer));
         }
-        return new VanillaRecipeTransferPayload(containerId, recipeId, List.copyOf(templates), maxTransfer);
+        return new VanillaRecipeTransferPayload(containerId, recipeId, List.copyOf(templates), maxTransfer, requestedSets, action);
     }
 
     @Override
