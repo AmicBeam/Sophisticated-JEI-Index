@@ -6,7 +6,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class ModPayloads {
-    private static final String VERSION = "1.2.0";
+    private static final String VERSION = "1.2.1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
         new ResourceLocation(SBJEIIndex.MOD_ID, "main"),
         () -> VERSION,

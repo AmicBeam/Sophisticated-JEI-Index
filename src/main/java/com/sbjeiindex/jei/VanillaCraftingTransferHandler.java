@@ -101,7 +101,7 @@ public class VanillaCraftingTransferHandler implements IRecipeTransferHandler<Cr
 
         if (doTransfer) {
             com.sbjeiindex.network.ModPayloads.CHANNEL.sendToServer(new VanillaRecipeTransferPayload(
-                menu.containerId, recipe.getId(), plan.templates(), maxTransfer
+                menu.containerId, recipe.getId(), plan.templates(), maxTransfer, maxTransfer ? 0 : 1, 0
             ));
         }
         return null;
