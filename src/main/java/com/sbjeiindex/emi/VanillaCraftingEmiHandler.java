@@ -29,7 +29,10 @@ public class VanillaCraftingEmiHandler implements EmiRecipeHandler<CraftingMenu>
 
     @Override
     public boolean supportsRecipe(EmiRecipe recipe) {
-        return recipe.getCategory() == VanillaEmiRecipeCategories.CRAFTING
+        var player = Minecraft.getInstance().player;
+        return player != null
+            && !BackpackHelper.getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(player).isEmpty()
+            && recipe.getCategory() == VanillaEmiRecipeCategories.CRAFTING
             && recipe.supportsRecipeTree()
             && recipe.getId() != null;
     }
