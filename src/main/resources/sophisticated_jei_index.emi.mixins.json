@@ -5,11 +5,7 @@
   "plugin": "com.sbjeiindex.mixin.SBJEIIndexMixinPlugin",
   "package": "com.sbjeiindex.mixin",
   "client": [
-    "emi.EmiClientMixin",
-    "emi.EmiPlayerInventoryMixin",
-    "emi.EmiRecipeFillerMixin"
+    "emi.EmiRegistryImplMixin"
   ],
-  "mixins": [
-    "emi.FillRecipeC2SPacketMixin"
-  ]
+  "mixins": []
 }

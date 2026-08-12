@@ -104,7 +104,7 @@ public class VanillaCraftingTransferHandler implements IRecipeTransferHandler<Cr
 
         if (doTransfer) {
             ClientPacketDistributor.sendToServer(new VanillaRecipeTransferPayload(
-                menu.containerId, recipe.id(), plan.templates(), maxTransfer
+                menu.containerId, recipe.id(), plan.templates(), maxTransfer, maxTransfer ? 0 : 1, 0
             ));
         }
         return null;
