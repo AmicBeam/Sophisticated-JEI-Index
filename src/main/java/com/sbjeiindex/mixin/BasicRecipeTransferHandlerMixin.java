@@ -22,7 +22,6 @@ import mezz.jei.library.transfer.BasicRecipeTransferHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -62,11 +61,6 @@ public class BasicRecipeTransferHandlerMixin {
         boolean doTransfer,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
-        // Vanilla crafting uses the public 1.2.1 handler and our transactional packet path.
-        // This fallback only decorates other JEI BasicRecipeTransferHandler instances.
-        if (container instanceof CraftingMenu) {
-            return;
-        }
         List<IndexedBackpackHandler> indexedBackpackHandlers = BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
         if (indexedBackpackHandlers.isEmpty()) {
             return;
