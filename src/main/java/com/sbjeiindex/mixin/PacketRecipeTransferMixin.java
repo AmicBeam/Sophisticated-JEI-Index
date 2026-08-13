@@ -5,7 +5,6 @@ import com.sbjeiindex.jei.JeiSlotResolver;
 import com.sbjeiindex.jei.JeiTransferConstants;
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
-import com.sbjeiindex.util.BackpackHelper.IndexedBackpackHandler;
 import mezz.jei.common.network.ServerPacketContext;
 import mezz.jei.common.network.ServerPacketData;
 import mezz.jei.common.network.packets.PacketRecipeTransfer;
@@ -56,10 +55,8 @@ public class PacketRecipeTransferMixin {
             craftingSlots.add(slot);
         }
 
-        List<IndexedBackpackHandler> indexedBackpackHandlers = BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
-        Map<Integer, IItemHandlerModifiable> backpackHandlers = new HashMap<>();
-        indexedBackpackHandlers.forEach(indexed -> backpackHandlers.put(indexed.index(), indexed.handler()));
-        Map<Integer, OffsetItemHandlerModifiable> offsetHandlers = new HashMap<>();
+        List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
+        OffsetItemHandlerModifiable[] offsetHandlers = backpackHandlers.isEmpty() ? null : new OffsetItemHandlerModifiable[backpackHandlers.size()];
 
         int inventorySlotsSize = buf.readVarInt();
         List<Slot> inventorySlots = new ArrayList<>();
@@ -84,17 +81,24 @@ public class PacketRecipeTransferMixin {
 
                 int backpackIndex = encoded / stride;
                 int innerSlot = encoded % stride;
+                if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
+                    invalidBackpackSlotIds = true;
+                    continue;
+                }
+
                 IItemHandlerModifiable handler = backpackHandlers.get(backpackIndex);
                 if (handler == null || innerSlot < 0 || innerSlot >= handler.getSlots()) {
                     invalidBackpackSlotIds = true;
                     continue;
                 }
 
-                OffsetItemHandlerModifiable offsetHandler = offsetHandlers.get(backpackIndex);
+                OffsetItemHandlerModifiable offsetHandler = offsetHandlers == null ? null : offsetHandlers[backpackIndex];
                 if (offsetHandler == null) {
                     int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
                     offsetHandler = new OffsetItemHandlerModifiable(handler, baseOffset);
-                    offsetHandlers.put(backpackIndex, offsetHandler);
+                    if (offsetHandlers != null) {
+                        offsetHandlers[backpackIndex] = offsetHandler;
+                    }
                 }
                 Slot slot = new BackpackTransferSlot(offsetHandler, slotIndex, 0, 0);
                 slot.index = slotIndex;
