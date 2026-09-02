@@ -18,12 +18,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Map<IBackpackWrapper, Boolean> UPGRADE_REFRESH_ATTEMPTED = new WeakHashMap<>();
     private static Class<?> STORAGE_MENU_CLASS;
     private static boolean STORAGE_MENU_CLASS_CHECKED;
 
@@ -43,6 +40,9 @@ public class BackpackHelper {
             IBackpackWrapper wrapper = getBackpackWrapper(backpack);
             if (wrapper == null) {
                 return false;
+            }
+            if (player.level().isClientSide()) {
+                BackpackClientContentsSync.registerAndRequest(wrapper);
             }
             if (isEligibleBackpack(wrapper)) {
                 if (seen.add(wrapper)) {
@@ -122,30 +122,10 @@ public class BackpackHelper {
 
     private static boolean hasJEIIndexUpgrade(IBackpackWrapper backpackWrapper) {
         try {
-            if (!backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty()) {
-                return true;
-            }
-
-            if (UPGRADE_REFRESH_ATTEMPTED.putIfAbsent(backpackWrapper, Boolean.TRUE) == null) {
-                refreshUpgradeHandlers(backpackWrapper);
-                return !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
-            }
-            return false;
+            return !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
         } catch (Exception e) {
             LOGGER.warn("Error checking JEI index upgrade", e);
             return false;
-        }
-    }
-
-    private static void refreshUpgradeHandlers(IBackpackWrapper backpackWrapper) {
-        invokeNoArg(backpackWrapper, "refreshInventoryForUpgradeProcessing");
-        invokeNoArg(backpackWrapper, "onContentsUpdated");
-    }
-
-    private static void invokeNoArg(Object target, String methodName) {
-        try {
-            target.getClass().getMethod(methodName).invoke(target);
-        } catch (Exception e) {
         }
     }
 

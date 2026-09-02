@@ -5,9 +5,11 @@
   "plugin": "com.sbjeiindex.mixin.SBJEIIndexMixinPlugin",
   "package": "com.sbjeiindex.mixin",
   "client": [
+    "BackpackContentsPayloadMixin",
     "BasicRecipeTransferHandlerMixin"
   ],
   "mixins": [
+    "PacketRecipeTransferCountedMixin",
     "PacketRecipeTransferMixin",
     "RecipeTransferUtilMixin",
     "TransferOperationMixin"

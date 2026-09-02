@@ -27,9 +27,9 @@ This project maintains separate branches per Minecraft/loader version:
 - **NeoForge (Minecraft 1.21.x)**: use branch `neoforge-1.21.1`
   - Minecraft 1.21.x
   - NeoForge 21.1+
-  - Sophisticated Core 1.21.1+ (required by Sophisticated Backpacks)
-  - Sophisticated Backpacks 1.21.1+
-  - JEI 19.x (Just Enough Items, NeoForge)
+  - Sophisticated Core 1.21.1-1.4.89+ (required by Sophisticated Backpacks)
+  - Sophisticated Backpacks 1.21.1-3.25.78+
+  - JEI 19.44.0.403+ (Just Enough Items, NeoForge)
   - EMI (optional)
   - Curios (optional, only needed if you want Curios slot support)
 - **NeoForge (Minecraft 26.1.2)**: use branch `neoforge-26.1.2`
@@ -38,7 +38,7 @@ This project maintains separate branches per Minecraft/loader version:
   - Java 25
   - Sophisticated Core 26.1.2-1.4.76+
   - Sophisticated Backpacks 26.1.2-3.25.76+
-  - JEI 29.6.x (Just Enough Items, NeoForge)
+  - JEI 29.20.0.60+ (Just Enough Items, NeoForge)
   - AE2 26.1.x, Refined Storage 3.2.x, Beyond Dimensions 0.7.24+, and Tom's Storage 26.1 are optional integrations
   - EMI integration is disabled on this branch until EMI publishes a compatible 26.1.2 NeoForge build
 

@@ -119,6 +119,9 @@ side="BOTH"
             mod_id              : mod_id,
             mod_version         : mod_version,
             mod_description     : mod_description,
+            sophisticated_core_version_range: sophisticated_core_version_range,
+            sophisticated_backpacks_version_range: sophisticated_backpacks_version_range,
+            jei_version_range   : jei_version_range,
             emi_mixins_block    : emiMixinsBlock,
             emi_dependency_block: emiDependencyBlock
     ]

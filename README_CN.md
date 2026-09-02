@@ -27,9 +27,9 @@
 - **NeoForge（Minecraft 1.21.x）**：使用分支 `neoforge-1.21.1`
   - Minecraft 1.21.x
   - NeoForge 21.1+
-  - Sophisticated Core 1.21.1+（Sophisticated Backpacks 的前置）
-  - Sophisticated Backpacks 1.21.1+
-  - JEI 19.x（Just Enough Items，NeoForge）
+  - Sophisticated Core 1.21.1-1.4.89+（Sophisticated Backpacks 的前置）
+  - Sophisticated Backpacks 1.21.1-3.25.78+
+  - JEI 19.44.0.403+（Just Enough Items，NeoForge）
   - EMI（可选）
   - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
 - **NeoForge（Minecraft 26.1.2）**：使用分支 `neoforge-26.1.2`
@@ -38,7 +38,7 @@
   - Java 25
   - Sophisticated Core 26.1.2-1.4.76+
   - Sophisticated Backpacks 26.1.2-3.25.76+
-  - JEI 29.6.x（Just Enough Items，NeoForge）
+  - JEI 29.20.0.60+（Just Enough Items，NeoForge）
   - AE2 26.1.x、Refined Storage 3.2.x、Beyond Dimensions 0.7.24+ 和 Tom's Storage 26.1 为可选联动
   - EMI 尚未发布兼容 26.1.2 的 NeoForge 构建，本分支暂不默认打包 EMI 联动
 
