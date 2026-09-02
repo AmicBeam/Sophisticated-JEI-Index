@@ -7,21 +7,11 @@
     "AEA"
   ],
   "key": {
-    "A": {
-      "tag": "c:dusts/redstone"
-    },
-    "B": {
-      "item": "minecraft:book"
-    },
-    "C": {
-      "tag": "c:ingots/iron"
-    },
-    "D": {
-      "item": "sophisticatedbackpacks:upgrade_base"
-    },
-    "E": {
-      "tag": "c:chests"
-    }
+    "A": "#c:dusts/redstone",
+    "B": "minecraft:book",
+    "C": "#c:ingots/iron",
+    "D": "sophisticatedbackpacks:upgrade_base",
+    "E": "#c:chests"
   },
   "result": {
     "id": "sophisticated_jei_index:jei_index_upgrade",
