@@ -9,11 +9,14 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.p3pp3rf1y.sophisticatedbackpacks.api.CapabilityBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
+import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider.BackpackInventorySlotConsumer;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -25,6 +28,7 @@ import java.util.function.Function;
 
 public class BackpackHelper {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final Method RUN_ON_BACKPACKS = findRunOnBackpacksMethod();
     private static final Map<IBackpackWrapper, Boolean> UPGRADE_REFRESH_ATTEMPTED = new WeakHashMap<>();
     private static Class<?> STORAGE_MENU_CLASS;
     private static boolean STORAGE_MENU_CLASS_CHECKED;
@@ -40,7 +44,7 @@ public class BackpackHelper {
         List<IndexedBackpack> results = new ArrayList<>();
         Set<IBackpackWrapper> seen = Collections.newSetFromMap(new IdentityHashMap<>());
         int[] backpackIndex = {0};
-        PlayerInventoryProvider.get().runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
+        runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
             int index = backpackIndex[0]++;
             IBackpackWrapper wrapper = getBackpackWrapper(backpack);
             if (wrapper == null) {
@@ -57,6 +61,33 @@ public class BackpackHelper {
             return false;
         });
         return results;
+    }
+
+    // Sophisticated Backpacks 3.26 changed this method's return type from void to boolean on newer Minecraft branches.
+    // Reflection keeps this release compatible if the same binary change is backported here.
+    private static void runOnBackpacks(Player player, BackpackInventorySlotConsumer consumer) {
+        if (RUN_ON_BACKPACKS == null) {
+            return;
+        }
+        try {
+            RUN_ON_BACKPACKS.invoke(PlayerInventoryProvider.get(), player, consumer);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Unable to access Sophisticated Backpacks inventory provider", e);
+        } catch (InvocationTargetException e) {
+            LOGGER.error("Error while scanning equipped Sophisticated Backpacks", e.getCause());
+        }
+    }
+
+    @Nullable
+    private static Method findRunOnBackpacksMethod() {
+        try {
+            return PlayerInventoryProvider.class.getMethod(
+                "runOnBackpacks", Player.class, BackpackInventorySlotConsumer.class
+            );
+        } catch (NoSuchMethodException e) {
+            LOGGER.error("Sophisticated Backpacks does not expose a compatible backpack inventory scanner", e);
+            return null;
+        }
     }
 
     public static List<InventoryHandler> getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(Player player) {

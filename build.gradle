@@ -42,6 +42,11 @@ repositories {
         content { includeGroup 'curse.maven' }
     }
     maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    maven {
         url = 'https://maven.blamejared.com'
     }
     flatDir { dirs 'runtime-mods' }
@@ -50,8 +55,8 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly fg.deobf("curse.maven:sophisticated-core-${sc_curse_id}:${sc_file_id}")
-    compileOnly fg.deobf("curse.maven:sophisticated-backpacks-${sb_curse_id}:${sb_file_id}")
+    compileOnly fg.deobf("maven.modrinth:sophisticated-core:${sophisticated_core_version}")
+    compileOnly fg.deobf("maven.modrinth:sophisticated-backpacks:${sophisticated_backpacks_version}")
     compileOnly fg.deobf("curse.maven:applied-energistics-2-${ae2_curse_id}:${ae2_file_id}")
     compileOnly fg.deobf("curse.maven:refinedstorage-${rs_curse_id}:${rs_file_id}")
     compileOnly fg.deobf("curse.maven:toms-storage-${ts_curse_id}:${ts_file_id}")
