@@ -16,6 +16,7 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.common.network.IConnectionToServer;
 import mezz.jei.common.network.packets.PacketRecipeTransfer;
+import mezz.jei.common.network.packets.PacketRecipeTransferCounted;
 import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.library.transfer.BasicRecipeTransferHandler;
@@ -141,14 +142,10 @@ public class BasicRecipeTransferHandlerMixin {
         for (Slot slot : inventorySlots) {
             net.minecraft.world.item.ItemStack stack = slot.getItem();
             if (!stack.isEmpty()) {
-                if (!slot.mayPickup(player)) {
-                    cir.setReturnValue(handlerHelper.createInternalError());
-                    return;
-                }
                 if (slot.allowModification(player)) {
                     availableItemStacks.put(slot, stack.copy());
                 }
-            } else {
+            } else if (slot.allowModification(player)) {
                 emptySlots++;
             }
         }
@@ -188,7 +185,9 @@ public class BasicRecipeTransferHandlerMixin {
             }
         }
 
-        int inputCount = inputItemSlotViews.size();
+        int inputCount = (int) inputItemSlotViews.stream()
+            .filter(slot -> !slot.isEmpty())
+            .count();
         if (filledCraftSlotCount - inputCount > emptySlots) {
             Component message = Component.translatable("jei.tooltip.error.recipe.transfer.inventory.full");
             cir.setReturnValue(handlerHelper.createUserErrorWithTooltip(message));
@@ -217,19 +216,42 @@ public class BasicRecipeTransferHandlerMixin {
 
             if (doTransfer) {
                 boolean requireCompleteSets = transferInfo.requireCompleteSets(container, recipe);
-                PacketRecipeTransfer packet = PacketRecipeTransfer.fromSlots(
-                    transferOperations.results,
-                    craftingSlots,
-                    extendedInventorySlots,
-                    maxTransfer,
-                    requireCompleteSets
-                );
-                serverConnection.sendPacketToServer(packet);
+                boolean counted = requiresCountedTransferPacket(transferOperations.results)
+                    && serverConnection.canSendPacket(PacketRecipeTransferCounted.TYPE);
+                if (counted) {
+                    PacketRecipeTransferCounted packet = PacketRecipeTransferCounted.fromSlots(
+                        transferOperations.results,
+                        craftingSlots,
+                        extendedInventorySlots,
+                        maxTransfer,
+                        requireCompleteSets
+                    );
+                    serverConnection.sendPacketToServer(packet);
+                } else {
+                    PacketRecipeTransfer packet = PacketRecipeTransfer.fromSlots(
+                        transferOperations.results,
+                        craftingSlots,
+                        extendedInventorySlots,
+                        maxTransfer,
+                        requireCompleteSets
+                    );
+                    serverConnection.sendPacketToServer(packet);
+                }
             }
         } finally {
             JeiSlotResolver.clear();
         }
 
         cir.setReturnValue(null);
+    }
+
+    private static boolean requiresCountedTransferPacket(List<mezz.jei.common.transfer.TransferOperation> operations) {
+        Set<Integer> craftingSlotIds = new java.util.HashSet<>();
+        for (mezz.jei.common.transfer.TransferOperation operation : operations) {
+            if (operation.count() > 1 || !craftingSlotIds.add(operation.craftingSlotId())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

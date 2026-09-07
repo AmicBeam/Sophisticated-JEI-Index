@@ -19,6 +19,11 @@ repositories {
     maven { url "https://www.cursemaven.com"
         content { includeGroup "curse.maven" }
     }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content { includeGroup "maven.modrinth" }
+    }
     maven { url "https://maven.blamejared.com/"
         content { includeGroup "mezz.jei" }
     }
@@ -65,14 +70,14 @@ configurations {
 }
 
 dependencies {
-    implementation "curse.maven:sophisticated-core-${sc_curse_id}:${sc_file_id}"
-    implementation "curse.maven:sophisticated-backpacks-${sb_curse_id}:${sb_file_id}"
+    implementation "maven.modrinth:sophisticated-core:${sc_version}"
+    implementation "maven.modrinth:sophisticated-backpacks:${sb_version}"
 
     compileOnly "mezz.jei:jei-${jei_mc_version}:${jei_version}"
     localRuntime "mezz.jei:jei-${jei_mc_version}:${jei_version}"
 
-    compileOnly "dev.emi:emi-neoforge:${emi_version}"
-    localRuntime "dev.emi:emi-neoforge:${emi_version}"
+    compileOnly "maven.modrinth:emi:${emi_version}"
+    localRuntime "maven.modrinth:emi:${emi_version}"
 
     compileOnly "curse.maven:beyond-dimensions-1222890:${bd_version}"
 }
@@ -86,7 +91,10 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             loader_version_range: loader_version_range,
             mod_id              : mod_id,
             mod_version         : mod_version,
-            mod_description     : mod_description
+            mod_description     : mod_description,
+            sc_version_range    : sc_version_range,
+            sb_version_range    : sb_version_range,
+            jei_version_range   : jei_version_range
     ]
     inputs.properties replaceProperties
 

@@ -28,7 +28,7 @@ public final class BackpackSnapshotCache {
 
     public static BackpackSnapshot getOrCreateIndexed(AbstractContainerMenu container, List<IndexedBackpackHandler> handlers) {
         BackpackSnapshot existing = BY_CONTAINER.get(container);
-        if (existing != null && sameHandlers(existing.handlers, handlers)) {
+        if (existing != null && sameHandlers(existing.handlers, handlers) && existing.hasSameContents()) {
             return existing;
         }
         BackpackSnapshot snapshot = BackpackSnapshot.build(handlers);
@@ -93,6 +93,30 @@ public final class BackpackSnapshotCache {
 
         public int emptyBackpackSlots() {
             return emptyBackpackSlots;
+        }
+
+        private boolean hasSameContents() {
+            int nonEmptyCount = 0;
+            for (IndexedBackpackHandler indexedHandler : handlers) {
+                IItemHandlerModifiable handler = indexedHandler.handler();
+                int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET
+                    + indexedHandler.index() * JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    ItemStack current = handler.getStackInSlot(i);
+                    ItemStack cached = nonEmptyStacks.get(baseOffset + i);
+                    if (current.isEmpty()) {
+                        if (cached != null) {
+                            return false;
+                        }
+                    } else {
+                        nonEmptyCount++;
+                        if (cached == null || !ItemStack.matches(current, cached)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return nonEmptyCount == nonEmptyStacks.size();
         }
 
         private static BackpackSnapshot build(List<IndexedBackpackHandler> handlers) {

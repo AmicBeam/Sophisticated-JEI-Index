@@ -44,16 +44,23 @@ ordering="NONE"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
+modId="sophisticatedcore"
+type="required"
+versionRange="${sc_version_range}"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
 modId="sophisticatedbackpacks"
 type="required"
-versionRange="[0,)"
+versionRange="${sb_version_range}"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="jei"
 type="required"
-versionRange="[0,)"
+versionRange="${jei_version_range}"
 ordering="AFTER"
 side="BOTH"
 
