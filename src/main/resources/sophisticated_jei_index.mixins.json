@@ -11,9 +11,7 @@
   "mixins": [
     "LegacyPacketRecipeTransferCountedMixin",
     "LegacyPacketRecipeTransferMixin",
-    "PacketRecipeTransferCountedMixin",
     "PacketRecipeTransferCountedWithResultMixin",
-    "PacketRecipeTransferMixin",
     "PacketRecipeTransferWithResultMixin",
     "RecipeTransferUtilMixin",
     "TransferOperationMixin"
