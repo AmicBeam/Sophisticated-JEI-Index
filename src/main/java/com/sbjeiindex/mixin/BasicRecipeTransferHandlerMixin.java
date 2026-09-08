@@ -24,12 +24,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +43,8 @@ import java.util.stream.Collectors;
 
 @Mixin(value = BasicRecipeTransferHandler.class, remap = false)
 public class BasicRecipeTransferHandlerMixin {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     @Shadow(remap = false)
     private IConnectionToServer serverConnection;
 
@@ -51,14 +57,62 @@ public class BasicRecipeTransferHandlerMixin {
     @Shadow(remap = false)
     private IRecipeTransferInfo transferInfo;
 
-    @Inject(method = "transferRecipe", at = @At("HEAD"), cancellable = true, remap = false)
-    private void sbjeiindex_transferRecipe(
+    @Inject(
+        method = "transferRecipe(Lnet/minecraft/world/inventory/AbstractContainerMenu;Ljava/lang/Object;Lmezz/jei/api/gui/ingredient/IRecipeSlotsView;Lnet/minecraft/world/entity/player/Player;ZZ)Lmezz/jei/api/recipe/transfer/IRecipeTransferError;",
+        at = @At("HEAD"),
+        cancellable = true,
+        remap = false
+    )
+    private void sbjeiindex_transferRecipeLegacy(
         AbstractContainerMenu container,
         Object recipe,
         IRecipeSlotsView recipeSlotsView,
         Player player,
         boolean maxTransfer,
         boolean doTransfer,
+        CallbackInfoReturnable<IRecipeTransferError> cir
+    ) {
+        sbjeiindex_transferRecipeWithBackpacks(
+            container, recipe, recipeSlotsView, player, maxTransfer, doTransfer, null, cir
+        );
+    }
+
+    @Inject(
+        method = "transferRecipe(Lmezz/jei/api/recipe/transfer/IRecipeTransferContext;Z)Lmezz/jei/api/recipe/transfer/IRecipeTransferError;",
+        at = @At("HEAD"),
+        cancellable = true,
+        remap = false,
+        require = 0
+    )
+    private void sbjeiindex_transferRecipeWithContext(
+        @Coerce Object context,
+        boolean doTransfer,
+        CallbackInfoReturnable<IRecipeTransferError> cir
+    ) {
+        try {
+            Class<?> contextClass = context.getClass();
+            AbstractContainerMenu container = (AbstractContainerMenu) contextClass.getMethod("getContainer").invoke(context);
+            Object recipe = contextClass.getMethod("getRecipe").invoke(context);
+            IRecipeSlotsView recipeSlotsView = (IRecipeSlotsView) contextClass.getMethod("getRecipeSlots").invoke(context);
+            Player player = (Player) contextClass.getMethod("getPlayer").invoke(context);
+            boolean maxTransfer = (boolean) contextClass.getMethod("isMaxTransfer").invoke(context);
+            sbjeiindex_transferRecipeWithBackpacks(
+                container, recipe, recipeSlotsView, player, maxTransfer, doTransfer, context, cir
+            );
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            LOGGER.error("Unable to read JEI recipe transfer context", e);
+            cir.setReturnValue(handlerHelper.createInternalError());
+        }
+    }
+
+    private void sbjeiindex_transferRecipeWithBackpacks(
+        AbstractContainerMenu container,
+        Object recipe,
+        IRecipeSlotsView recipeSlotsView,
+        Player player,
+        boolean maxTransfer,
+        boolean doTransfer,
+        @Nullable Object transferContext,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
         List<IndexedBackpackHandler> indexedBackpackHandlers = BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
@@ -222,7 +276,8 @@ public class BasicRecipeTransferHandlerMixin {
                     extendedInventorySlots,
                     maxTransfer,
                     requireCompleteSets,
-                    requiresCountedTransferPacket(transferOperations.results)
+                    requiresCountedTransferPacket(transferOperations.results),
+                    transferContext
                 )) {
                     cir.setReturnValue(handlerHelper.createInternalError());
                     return;

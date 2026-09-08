@@ -41,12 +41,10 @@ public class BackpackHelper {
         int[] backpackIndex = {0};
         runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
             int index = backpackIndex[0]++;
-            IBackpackWrapper wrapper = getBackpackWrapper(backpack);
+            BackpackLookup lookup = getBackpackWrapper(player, backpack);
+            IBackpackWrapper wrapper = lookup.wrapper();
             if (wrapper == null) {
                 return false;
-            }
-            if (player.level().isClientSide()) {
-                BackpackClientContentsSync.registerAndRequest(wrapper);
             }
             if (isEligibleBackpack(wrapper)) {
                 if (seen.add(wrapper)) {
@@ -59,6 +57,16 @@ public class BackpackHelper {
             return false;
         });
         return results;
+    }
+
+    public static void primeClientBackpackContents(Player player) {
+        if (!player.level().isClientSide()) {
+            return;
+        }
+        runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
+            LinkedBackpackClientCompat.resolveOrRequest(player.level(), backpack);
+            return false;
+        });
     }
 
     // Sophisticated Backpacks 3.26 changed this method's return type from void to boolean.
@@ -116,14 +124,26 @@ public class BackpackHelper {
 
     public record IndexedBackpackHandler(int index, IItemHandlerModifiable handler) {}
 
-    @Nullable
-    private static IBackpackWrapper getBackpackWrapper(ItemStack stack) {
+    private static BackpackLookup getBackpackWrapper(Player player, ItemStack stack) {
+        if (player.level().isClientSide()) {
+            LinkedBackpackClientCompat.Resolution linked = LinkedBackpackClientCompat.resolveOrRequest(player.level(), stack);
+            if (linked.linked()) {
+                return new BackpackLookup(linked.wrapper(), true);
+            }
+        }
+
         try {
-            return BackpackWrapper.fromStack(stack);
+            IBackpackWrapper wrapper = BackpackWrapper.fromStack(stack);
+            if (player.level().isClientSide()) {
+                BackpackClientContentsSync.registerAndRequest(wrapper);
+            }
+            return new BackpackLookup(wrapper, false);
         } catch (Exception e) {
-            return null;
+            return new BackpackLookup(null, false);
         }
     }
+
+    private record BackpackLookup(@Nullable IBackpackWrapper wrapper, boolean linked) {}
 
     public static boolean isBackpackMenu(Object menu) {
         if (menu == null) {

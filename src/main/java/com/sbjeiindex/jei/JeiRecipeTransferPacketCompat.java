@@ -22,9 +22,20 @@ public final class JeiRecipeTransferPacketCompat {
         "mezz.jei.common.network.packets.legacy.PacketRecipeTransfer"
     );
     private static final PacketFactory COUNTED = findFactory(
+        false,
         "mezz.jei.common.network.packets.PacketRecipeTransferCounted",
         "mezz.jei.common.network.packets.legacy.PacketRecipeTransferCounted"
     );
+    private static final PacketFactory BASIC_WITH_RESULT = findFactory(
+        true,
+        "mezz.jei.common.network.packets.PacketRecipeTransferWithResult"
+    );
+    private static final PacketFactory COUNTED_WITH_RESULT = findFactory(
+        true,
+        "mezz.jei.common.network.packets.PacketRecipeTransferCountedWithResult"
+    );
+    @Nullable
+    private static final ResultSupport RESULT_SUPPORT = ResultSupport.find();
 
     private JeiRecipeTransferPacketCompat() {}
 
@@ -35,18 +46,32 @@ public final class JeiRecipeTransferPacketCompat {
         List<Slot> inventorySlots,
         boolean maxTransfer,
         boolean requireCompleteSets,
-        boolean preferCounted
+        boolean preferCounted,
+        @Nullable Object transferContext
     ) {
-        PacketFactory factory = preferCounted && canSend(connection, COUNTED) ? COUNTED : BASIC;
+        PacketFactory resultFactory = preferCounted ? COUNTED_WITH_RESULT : BASIC_WITH_RESULT;
+        boolean withResult = transferContext != null && RESULT_SUPPORT != null && canSend(connection, resultFactory);
+        PacketFactory factory = withResult
+            ? resultFactory
+            : (preferCounted && canSend(connection, COUNTED) ? COUNTED : BASIC);
         if (!canSend(connection, factory)) {
             LOGGER.error("JEI does not expose a compatible recipe transfer packet");
             return false;
         }
 
         try {
-            Object packet = factory.fromSlots().invoke(
-                null, operations, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets
-            );
+            Object packet;
+            if (withResult) {
+                int transferId = ((Number) RESULT_SUPPORT.getTransferId().invoke(transferContext)).intValue();
+                packet = factory.fromSlots().invoke(
+                    null, operations, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets, transferId
+                );
+                RESULT_SUPPORT.registerPending().invoke(null, transferContext);
+            } else {
+                packet = factory.fromSlots().invoke(
+                    null, operations, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets
+                );
+            }
             connection.sendPacketToServer((PlayToServerPacket) packet);
             return true;
         } catch (IllegalAccessException | InvocationTargetException | ClassCastException e) {
@@ -61,12 +86,21 @@ public final class JeiRecipeTransferPacketCompat {
 
     @Nullable
     private static PacketFactory findFactory(String... classNames) {
+        return findFactory(false, classNames);
+    }
+
+    @Nullable
+    private static PacketFactory findFactory(boolean withResult, String... classNames) {
         for (String className : classNames) {
             try {
                 Class<?> packetClass = Class.forName(className);
-                Method fromSlots = packetClass.getMethod(
-                    "fromSlots", List.class, List.class, List.class, boolean.class, boolean.class
-                );
+                Method fromSlots = withResult
+                    ? packetClass.getMethod(
+                        "fromSlots", List.class, List.class, List.class, boolean.class, boolean.class, int.class
+                    )
+                    : packetClass.getMethod(
+                        "fromSlots", List.class, List.class, List.class, boolean.class, boolean.class
+                    );
                 Field typeField = packetClass.getField("TYPE");
                 CustomPacketPayload.Type<?> type = (CustomPacketPayload.Type<?>) typeField.get(null);
                 return new PacketFactory(fromSlots, type);
@@ -80,4 +114,19 @@ public final class JeiRecipeTransferPacketCompat {
     }
 
     private record PacketFactory(Method fromSlots, CustomPacketPayload.Type<?> type) {}
+
+    private record ResultSupport(Method getTransferId, Method registerPending) {
+        @Nullable
+        private static ResultSupport find() {
+            try {
+                Class<?> contextClass = Class.forName("mezz.jei.api.recipe.transfer.IRecipeTransferContext");
+                Method getTransferId = contextClass.getMethod("getTransferId");
+                Class<?> resultPacketClass = Class.forName("mezz.jei.common.network.packets.PacketRecipeTransferResult");
+                Method registerPending = resultPacketClass.getMethod("registerPendingRecipeTransfer", contextClass);
+                return new ResultSupport(getTransferId, registerPending);
+            } catch (ClassNotFoundException | NoSuchMethodException e) {
+                return null;
+            }
+        }
+    }
 }
