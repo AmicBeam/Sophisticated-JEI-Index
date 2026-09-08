@@ -14,7 +14,9 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.common.network.IConnectionToServer;
-import mezz.jei.common.network.packets.PacketRecipeTransfer;
+import mezz.jei.common.network.packets.PacketRecipeTransferCountedWithResult;
+import mezz.jei.common.network.packets.PacketRecipeTransferResult;
+import mezz.jei.api.recipe.transfer.IRecipeTransferContext;
 import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.library.transfer.BasicRecipeTransferHandler;
@@ -50,7 +52,7 @@ public class BasicRecipeTransferHandlerMixin {
     @Shadow(remap = false)
     private IRecipeTransferInfo transferInfo;
 
-    @Inject(method = "transferRecipe", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "transferRecipeInternal", at = @At("HEAD"), cancellable = true, remap = false)
     private void sbjeiindex_transferRecipe(
         AbstractContainerMenu container,
         Object recipe,
@@ -58,6 +60,7 @@ public class BasicRecipeTransferHandlerMixin {
         Player player,
         boolean maxTransfer,
         boolean doTransfer,
+        IRecipeTransferContext<?, ?> transferContext,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
         List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
@@ -214,13 +217,17 @@ public class BasicRecipeTransferHandlerMixin {
 
             if (doTransfer) {
                 boolean requireCompleteSets = transferInfo.requireCompleteSets(container, recipe);
-                PacketRecipeTransfer packet = new PacketRecipeTransfer(
+                PacketRecipeTransferCountedWithResult packet = new PacketRecipeTransferCountedWithResult(
                     transferOperations.results,
                     craftingSlots,
                     extendedInventorySlots,
                     maxTransfer,
-                    requireCompleteSets
+                    requireCompleteSets,
+                    transferContext == null ? 0 : transferContext.getTransferId()
                 );
+                if (transferContext != null) {
+                    PacketRecipeTransferResult.registerPendingRecipeTransfer(transferContext);
+                }
                 serverConnection.sendPacketToServer(packet);
             }
         } finally {

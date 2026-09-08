@@ -21,7 +21,7 @@
   - Forge 47.x
   - Sophisticated Core 1.20.1-1.3.6+（Sophisticated Backpacks 的前置）
   - Sophisticated Backpacks 3.24+
-  - JEI 15.x（Just Enough Items，Forge）
+  - JEI 15.58.0.209+（Just Enough Items，Forge）
   - EMI（可选）
   - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
 - **NeoForge（Minecraft 1.21.x）**：使用分支 `neoforge-1.21.1`

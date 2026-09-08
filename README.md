@@ -21,7 +21,7 @@ This project maintains separate branches per Minecraft/loader version:
   - Forge 47.x
   - Sophisticated Core 1.20.1-1.3.6+ (required by Sophisticated Backpacks)
   - Sophisticated Backpacks 3.24+
-  - JEI 15.x (Just Enough Items, Forge)
+  - JEI 15.58.0.209+ (Just Enough Items, Forge)
   - EMI (optional)
   - Curios (optional, only needed if you want Curios slot support)
 - **NeoForge (Minecraft 1.21.x)**: use branch `neoforge-1.21.1`

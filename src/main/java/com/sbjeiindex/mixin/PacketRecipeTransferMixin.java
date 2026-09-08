@@ -7,7 +7,8 @@ import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
 import mezz.jei.common.network.ServerPacketContext;
 import mezz.jei.common.network.ServerPacketData;
-import mezz.jei.common.network.packets.PacketRecipeTransfer;
+import mezz.jei.common.network.packets.PacketRecipeTransferCountedWithResult;
+import mezz.jei.common.network.packets.PacketRecipeTransferResult;
 import mezz.jei.common.transfer.BasicRecipeTransferHandlerServer;
 import mezz.jei.common.transfer.TransferOperation;
 import net.minecraft.network.FriendlyByteBuf;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@Mixin(value = PacketRecipeTransfer.class, remap = false)
+@Mixin(value = PacketRecipeTransferCountedWithResult.class, remap = false)
 public class PacketRecipeTransferMixin {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -43,7 +44,7 @@ public class PacketRecipeTransferMixin {
         int transferOperationsSize = buf.readVarInt();
         List<TransferOperation> transferOperations = new ArrayList<>();
         for (int i = 0; i < transferOperationsSize; i++) {
-            TransferOperation transferOperation = TransferOperation.readPacketData(buf, container);
+            TransferOperation transferOperation = TransferOperation.readCountedPacketData(buf, container);
             transferOperations.add(transferOperation);
         }
 
@@ -55,8 +56,11 @@ public class PacketRecipeTransferMixin {
             craftingSlots.add(slot);
         }
 
-        List<IItemHandlerModifiable> backpackHandlers = BackpackHelper.getEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
-        OffsetItemHandlerModifiable[] offsetHandlers = backpackHandlers.isEmpty() ? null : new OffsetItemHandlerModifiable[backpackHandlers.size()];
+        Map<Integer, IItemHandlerModifiable> backpackHandlers = new HashMap<>();
+        for (var indexed : BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player)) {
+            backpackHandlers.put(indexed.index(), indexed.handler());
+        }
+        Map<Integer, OffsetItemHandlerModifiable> offsetHandlers = new HashMap<>();
 
         int inventorySlotsSize = buf.readVarInt();
         List<Slot> inventorySlots = new ArrayList<>();
@@ -81,7 +85,7 @@ public class PacketRecipeTransferMixin {
 
                 int backpackIndex = encoded / stride;
                 int innerSlot = encoded % stride;
-                if (backpackIndex < 0 || backpackIndex >= backpackHandlers.size()) {
+                if (!backpackHandlers.containsKey(backpackIndex)) {
                     invalidBackpackSlotIds = true;
                     continue;
                 }
@@ -92,12 +96,12 @@ public class PacketRecipeTransferMixin {
                     continue;
                 }
 
-                OffsetItemHandlerModifiable offsetHandler = offsetHandlers == null ? null : offsetHandlers[backpackIndex];
+                OffsetItemHandlerModifiable offsetHandler = offsetHandlers.get(backpackIndex);
                 if (offsetHandler == null) {
                     int baseOffset = JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET + backpackIndex * stride;
                     offsetHandler = new OffsetItemHandlerModifiable(handler, baseOffset);
                     if (offsetHandlers != null) {
-                        offsetHandlers[backpackIndex] = offsetHandler;
+                        offsetHandlers.put(backpackIndex, offsetHandler);
                     }
                 }
                 Slot slot = new BackpackTransferSlot(offsetHandler, slotIndex, 0, 0);
@@ -112,10 +116,11 @@ public class PacketRecipeTransferMixin {
 
         boolean maxTransfer = buf.readBoolean();
         boolean requireCompleteSets = buf.readBoolean();
+        int transferId = buf.readVarInt();
 
         if (hasBackpackSlotIds && (backpackHandlers.isEmpty() || invalidBackpackSlotIds)) {
             LOGGER.debug("Ignoring JEI recipe transfer: packet referenced backpack slots but no valid backpack slot mapping was found for {}", player.getGameProfile().getName());
-            cir.setReturnValue(CompletableFuture.completedFuture(null));
+            cir.setReturnValue(player.server.submit(() -> context.connection().sendPacketToClient(new PacketRecipeTransferResult(transferId, false), player)));
             return;
         }
 
@@ -123,7 +128,7 @@ public class PacketRecipeTransferMixin {
         CompletableFuture<Void> future = server.submit(() -> {
             JeiSlotResolver.set(extraSlots);
             try {
-                BasicRecipeTransferHandlerServer.setItems(
+                boolean success = BasicRecipeTransferHandlerServer.setItemsWithResult(
                     player,
                     transferOperations,
                     craftingSlots,
@@ -131,6 +136,7 @@ public class PacketRecipeTransferMixin {
                     maxTransfer,
                     requireCompleteSets
                 );
+                context.connection().sendPacketToClient(new PacketRecipeTransferResult(transferId, success), player);
             } finally {
                 JeiSlotResolver.clear();
             }
