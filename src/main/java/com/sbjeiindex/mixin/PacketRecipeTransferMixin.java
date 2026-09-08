@@ -2,9 +2,9 @@ package com.sbjeiindex.mixin;
 
 import com.sbjeiindex.jei.JeiPacketTransferProcessor;
 import mezz.jei.common.network.ServerPacketContext;
-import mezz.jei.common.network.packets.PacketRecipeTransfer;
 import mezz.jei.common.transfer.TransferOperation;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-@Mixin(value = PacketRecipeTransfer.class, remap = false)
+@Pseudo
+@Mixin(targets = "mezz.jei.common.network.packets.PacketRecipeTransfer", remap = false)
 public class PacketRecipeTransferMixin {
     @Shadow(remap = false)
     @Final

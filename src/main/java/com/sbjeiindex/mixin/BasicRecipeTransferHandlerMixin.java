@@ -4,6 +4,7 @@ import com.sbjeiindex.jei.BackpackSnapshotCache;
 import com.sbjeiindex.jei.BackpackTransferSlot;
 import com.sbjeiindex.jei.JeiSlotResolver;
 import com.sbjeiindex.jei.JeiTransferConstants;
+import com.sbjeiindex.jei.JeiRecipeTransferPacketCompat;
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
 import com.sbjeiindex.util.BackpackHelper.IndexedBackpackHandler;
@@ -15,8 +16,6 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.common.network.IConnectionToServer;
-import mezz.jei.common.network.packets.PacketRecipeTransfer;
-import mezz.jei.common.network.packets.PacketRecipeTransferCounted;
 import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.library.transfer.BasicRecipeTransferHandler;
@@ -216,26 +215,17 @@ public class BasicRecipeTransferHandlerMixin {
 
             if (doTransfer) {
                 boolean requireCompleteSets = transferInfo.requireCompleteSets(container, recipe);
-                boolean counted = requiresCountedTransferPacket(transferOperations.results)
-                    && serverConnection.canSendPacket(PacketRecipeTransferCounted.TYPE);
-                if (counted) {
-                    PacketRecipeTransferCounted packet = PacketRecipeTransferCounted.fromSlots(
-                        transferOperations.results,
-                        craftingSlots,
-                        extendedInventorySlots,
-                        maxTransfer,
-                        requireCompleteSets
-                    );
-                    serverConnection.sendPacketToServer(packet);
-                } else {
-                    PacketRecipeTransfer packet = PacketRecipeTransfer.fromSlots(
-                        transferOperations.results,
-                        craftingSlots,
-                        extendedInventorySlots,
-                        maxTransfer,
-                        requireCompleteSets
-                    );
-                    serverConnection.sendPacketToServer(packet);
+                if (!JeiRecipeTransferPacketCompat.send(
+                    serverConnection,
+                    transferOperations.results,
+                    craftingSlots,
+                    extendedInventorySlots,
+                    maxTransfer,
+                    requireCompleteSets,
+                    requiresCountedTransferPacket(transferOperations.results)
+                )) {
+                    cir.setReturnValue(handlerHelper.createInternalError());
+                    return;
                 }
             }
         } finally {

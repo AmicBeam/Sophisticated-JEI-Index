@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Pseudo
-@Mixin(targets = "mezz.jei.common.network.packets.PacketRecipeTransferCounted", remap = false)
-public class PacketRecipeTransferCountedMixin {
+@Mixin(targets = "mezz.jei.common.network.packets.legacy.PacketRecipeTransferCounted", remap = false)
+public class LegacyPacketRecipeTransferCountedMixin {
     @Shadow(remap = false) @Final public List<TransferOperation> transferOperations;
     @Shadow(remap = false) @Final public List<Integer> craftingSlots;
     @Shadow(remap = false) @Final public List<Integer> inventorySlots;
