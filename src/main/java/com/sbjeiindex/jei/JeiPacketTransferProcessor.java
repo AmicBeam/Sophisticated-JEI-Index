@@ -19,7 +19,7 @@ public final class JeiPacketTransferProcessor {
     private JeiPacketTransferProcessor() {
     }
 
-    public static void process(
+    public static boolean process(
         ServerPlayer player,
         List<TransferOperation> transferOperations,
         List<Integer> craftingSlotIds,
@@ -39,12 +39,12 @@ public final class JeiPacketTransferProcessor {
         List<Slot> craftingSlots = resolveSlots(container, craftingSlotIds, backpackHandlers, offsetHandlers, extraSlots);
         List<Slot> inventorySlots = resolveSlots(container, inventorySlotIds, backpackHandlers, offsetHandlers, extraSlots);
         if (craftingSlots == null || inventorySlots == null) {
-            return;
+            return false;
         }
 
         JeiSlotResolver.set(extraSlots);
         try {
-            BasicRecipeTransferHandlerServer.setItems(
+            return BasicRecipeTransferHandlerServer.setItemsWithResult(
                 player,
                 transferOperations,
                 craftingSlots,

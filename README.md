@@ -38,7 +38,7 @@ This project maintains separate branches per Minecraft/loader version:
   - Java 25
   - Sophisticated Core 26.1.2-1.4.76+
   - Sophisticated Backpacks 26.1.2-3.25.76+
-  - JEI 29.20.0.60+ (Just Enough Items, NeoForge)
+  - JEI 29.37.0.98+ (Just Enough Items, NeoForge)
   - AE2 26.1.x, Refined Storage 3.2.x, Beyond Dimensions 0.7.24+, and Tom's Storage 26.1 are optional integrations
   - EMI integration is disabled on this branch until EMI publishes a compatible 26.1.2 NeoForge build
 
