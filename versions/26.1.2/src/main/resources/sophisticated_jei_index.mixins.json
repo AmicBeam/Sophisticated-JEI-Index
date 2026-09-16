@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.sbjeiindex.mixin.SBJEIIndexMixinPlugin",
+  "package": "com.sbjeiindex.mixin",
+  "client": [
+    "BackpackContentsPayloadMixin",
+    "BasicRecipeTransferHandlerMixin"
+  ],
+  "mixins": [
+    "PacketRecipeTransferCountedMixin",
+    "PacketRecipeTransferMixin",
+    "RecipeTransferUtilMixin",
+    "TransferOperationMixin"
+  ]
+}

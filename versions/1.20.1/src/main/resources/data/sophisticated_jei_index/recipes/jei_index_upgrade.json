@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "AEA"
+  ],
+  "key": {
+    "A": {
+      "tag": "forge:dusts/redstone"
+    },
+    "B": {
+      "item": "minecraft:book"
+    },
+    "C": {
+      "tag": "forge:ingots/iron"
+    },
+    "D": {
+      "item": "sophisticatedbackpacks:upgrade_base"
+    },
+    "E": {
+      "tag": "forge:chests"
+    }
+  },
+  "result": {
+    "item": "sophisticated_jei_index:jei_index_upgrade"
+  }
+}

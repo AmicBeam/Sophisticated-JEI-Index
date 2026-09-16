@@ -1,0 +1,140 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+version = "${mod_version}+${minecraft_version}"
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'ModMaven'
+        url = 'https://modmaven.dev'
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+    }
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+        content { includeGroup "dev.emi" }
+    }
+}
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        configureEach {
+            systemProperty 'forge.logging.console.level', 'debug'
+            systemProperty 'mixin.env.disableRefMap', 'true'
+        }
+
+        client {
+            client()
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+def includeEmiCompat = (findProperty('include_emi_compat') ?: 'false').toString().toBoolean()
+
+sourceSets {
+    main {
+        if (!includeEmiCompat) {
+            java {
+                exclude 'com/sbjeiindex/emi/**'
+                exclude 'com/sbjeiindex/mixin/emi/**'
+            }
+            resources {
+                exclude "${mod_id}.emi.mixins.json"
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation "maven.modrinth:sophisticated-core:${sophisticated_core_version}"
+    implementation "maven.modrinth:sophisticated-backpacks:${sophisticated_backpacks_version}"
+
+    compileOnly "maven.modrinth:jei:${jei_version}"
+    localRuntime "maven.modrinth:jei:${jei_version}"
+
+    compileOnly "maven.modrinth:ae2:${ae2_version}"
+    compileOnly "maven.modrinth:refined-storage:${refined_storage_version}"
+    compileOnly "maven.modrinth:beyonddimensions:${beyond_dimensions_version}"
+
+    if (includeEmiCompat) {
+        if (!emi_version) {
+            throw new GradleException("include_emi_compat=true requires emi_version to be set to a compatible 26.1.2 EMI build")
+        }
+        compileOnly "dev.emi:emi-neoforge:${emi_version}"
+        localRuntime "dev.emi:emi-neoforge:${emi_version}"
+    }
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var emiMixinsBlock = includeEmiCompat ? """
+[[mixins]]
+config="${mod_id}.emi.mixins.json"
+""" : ""
+    var emiDependencyBlock = includeEmiCompat ? """
+[[dependencies.${mod_id}]]
+modId="emi"
+type="optional"
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"
+""" : ""
+    var replaceProperties = [
+            minecraft_version   : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version         : neo_version,
+            neo_version_range   : neo_version_range,
+            loader_version_range: loader_version_range,
+            mod_id              : mod_id,
+            mod_version         : mod_version,
+            mod_description     : mod_description,
+            sophisticated_core_version_range: sophisticated_core_version_range,
+            sophisticated_backpacks_version_range: sophisticated_backpacks_version_range,
+            jei_version_range   : jei_version_range,
+            emi_mixins_block    : emiMixinsBlock,
+            emi_dependency_block: emiDependencyBlock
+    ]
+    inputs.properties replaceProperties
+
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

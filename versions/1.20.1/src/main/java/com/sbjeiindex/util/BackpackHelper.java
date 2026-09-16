@@ -1,0 +1,175 @@
+package com.sbjeiindex.util;
+
+import com.sbjeiindex.config.SBJEIIndexConfig;
+import com.sbjeiindex.upgrade.JEIIndexUpgradeItem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.p3pp3rf1y.sophisticatedbackpacks.api.CapabilityBackpackWrapper;
+import net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.IBackpackWrapper;
+import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
+import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider.BackpackInventorySlotConsumer;
+import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.function.Function;
+
+public class BackpackHelper {
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Method RUN_ON_BACKPACKS = findRunOnBackpacksMethod();
+    private static final Map<IBackpackWrapper, Boolean> UPGRADE_REFRESH_ATTEMPTED = new WeakHashMap<>();
+    private static Class<?> STORAGE_MENU_CLASS;
+    private static boolean STORAGE_MENU_CLASS_CHECKED;
+
+    public static List<IBackpackWrapper> getEquippedBackpacksWithJEIIndexUpgrade(Player player) {
+        return getIndexedEquippedBackpacksWithJEIIndexUpgrade(player).stream()
+            .map(IndexedBackpack::wrapper)
+            .toList();
+    }
+
+    private static List<IndexedBackpack> getIndexedEquippedBackpacksWithJEIIndexUpgrade(Player player) {
+        int maxScanned = SBJEIIndexConfig.maxEnabledBackpacksScanned.get();
+        List<IndexedBackpack> results = new ArrayList<>();
+        Set<IBackpackWrapper> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        int[] backpackIndex = {0};
+        runOnBackpacks(player, (backpack, inventoryHandlerName, identifier, slot) -> {
+            int index = backpackIndex[0]++;
+            IBackpackWrapper wrapper = getBackpackWrapper(backpack);
+            if (wrapper == null) {
+                return false;
+            }
+            if (isEligibleBackpack(wrapper)) {
+                if (seen.add(wrapper)) {
+                    results.add(new IndexedBackpack(index, wrapper));
+                    if (maxScanned > 0 && results.size() >= maxScanned) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+        return results;
+    }
+
+    // Sophisticated Backpacks 3.26 changed this method's return type from void to boolean on newer Minecraft branches.
+    // Reflection keeps this release compatible if the same binary change is backported here.
+    private static void runOnBackpacks(Player player, BackpackInventorySlotConsumer consumer) {
+        if (RUN_ON_BACKPACKS == null) {
+            return;
+        }
+        try {
+            RUN_ON_BACKPACKS.invoke(PlayerInventoryProvider.get(), player, consumer);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Unable to access Sophisticated Backpacks inventory provider", e);
+        } catch (InvocationTargetException e) {
+            LOGGER.error("Error while scanning equipped Sophisticated Backpacks", e.getCause());
+        }
+    }
+
+    @Nullable
+    private static Method findRunOnBackpacksMethod() {
+        try {
+            return PlayerInventoryProvider.class.getMethod(
+                "runOnBackpacks", Player.class, BackpackInventorySlotConsumer.class
+            );
+        } catch (NoSuchMethodException e) {
+            LOGGER.error("Sophisticated Backpacks does not expose a compatible backpack inventory scanner", e);
+            return null;
+        }
+    }
+
+    public static List<InventoryHandler> getEquippedBackpackInventoryHandlersWithJEIIndexUpgrade(Player player) {
+        List<IBackpackWrapper> wrappers = getEquippedBackpacksWithJEIIndexUpgrade(player);
+        return collectHandlers(wrappers, IBackpackWrapper::getInventoryHandler);
+    }
+
+    public static List<IItemHandlerModifiable> getEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
+        return getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player).stream()
+            .map(IndexedBackpackHandler::handler)
+            .toList();
+    }
+
+    public static List<IndexedBackpackHandler> getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(Player player) {
+        List<IndexedBackpack> backpacks = getIndexedEquippedBackpacksWithJEIIndexUpgrade(player);
+        List<IndexedBackpackHandler> handlers = new ArrayList<>(backpacks.size());
+        Set<IItemHandlerModifiable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (IndexedBackpack backpack : backpacks) {
+            IItemHandlerModifiable handler = backpack.wrapper().getInventoryHandler();
+            if (handler != null && seen.add(handler)) {
+                handlers.add(new IndexedBackpackHandler(backpack.index(), handler));
+            }
+        }
+        return handlers;
+    }
+
+    private record IndexedBackpack(int index, IBackpackWrapper wrapper) {}
+
+    public record IndexedBackpackHandler(int index, IItemHandlerModifiable handler) {}
+
+    @Nullable
+    private static IBackpackWrapper getBackpackWrapper(ItemStack stack) {
+        LazyOptional<IBackpackWrapper> cap = stack.getCapability(CapabilityBackpackWrapper.getCapabilityInstance());
+        return cap.resolve().orElse(null);
+    }
+
+    public static boolean isBackpackMenu(Object menu) {
+        if (menu == null) {
+            return false;
+        }
+        if (!STORAGE_MENU_CLASS_CHECKED) {
+            try {
+                STORAGE_MENU_CLASS = Class.forName("net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase");
+            } catch (Exception e) {
+                STORAGE_MENU_CLASS = null;
+            } finally {
+                STORAGE_MENU_CLASS_CHECKED = true;
+            }
+        }
+        return STORAGE_MENU_CLASS != null && STORAGE_MENU_CLASS.isInstance(menu);
+    }
+
+    private static boolean isEligibleBackpack(IBackpackWrapper backpackWrapper) {
+        return SBJEIIndexConfig.enableTransferWithoutUpgrade.get() || hasJEIIndexUpgrade(backpackWrapper);
+    }
+
+    private static boolean hasJEIIndexUpgrade(IBackpackWrapper backpackWrapper) {
+        try {
+            if (!backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty()) {
+                return true;
+            }
+
+            if (UPGRADE_REFRESH_ATTEMPTED.putIfAbsent(backpackWrapper, Boolean.TRUE) == null) {
+                backpackWrapper.onContentsNbtUpdated();
+                return !backpackWrapper.getUpgradeHandler().getTypeWrappers(JEIIndexUpgradeItem.TYPE).isEmpty();
+            }
+            return false;
+        } catch (Exception e) {
+            LOGGER.warn("Error checking JEI index upgrade", e);
+            return false;
+        }
+    }
+
+    private static <T> List<T> collectHandlers(List<IBackpackWrapper> wrappers, Function<IBackpackWrapper, T> getter) {
+        List<T> handlers = new ArrayList<>(wrappers.size());
+        Set<T> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (IBackpackWrapper wrapper : wrappers) {
+            T h = getter.apply(wrapper);
+            if (h != null && seen.add(h)) {
+                handlers.add(h);
+            }
+        }
+        return handlers;
+    }
+}

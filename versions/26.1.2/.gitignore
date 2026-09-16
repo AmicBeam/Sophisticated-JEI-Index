@@ -31,7 +31,3 @@ debug/
 # Mod specific
 mcmodsrepo/
 runtime-mods/
-
-# Python verification tools
-__pycache__/
-*.pyc

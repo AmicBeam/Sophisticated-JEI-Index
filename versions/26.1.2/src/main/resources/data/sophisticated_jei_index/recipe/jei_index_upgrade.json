@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "AEA"
+  ],
+  "key": {
+    "A": "#c:dusts/redstone",
+    "B": "minecraft:book",
+    "C": "#c:ingots/iron",
+    "D": "sophisticatedbackpacks:upgrade_base",
+    "E": "#c:chests"
+  },
+  "result": {
+    "id": "sophisticated_jei_index:jei_index_upgrade",
+    "count": 1
+  }
+}

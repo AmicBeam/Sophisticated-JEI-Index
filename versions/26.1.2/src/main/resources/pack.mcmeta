@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "Sophisticated JEI Index",
+    "min_format": 84,
+    "max_format": [101, 1]
+  }
+}

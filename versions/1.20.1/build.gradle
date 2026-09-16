@@ -1,0 +1,101 @@
+plugins {
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+}
+
+version = "${mod_version}+${minecraft_version}"
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+    copyIdeResources = true
+    runs {
+        configureEach {
+            workingDirectory project.file("run/${it.name}")
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+        client {}
+        server { args '--nogui' }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.parchmentmc.org' }
+    maven { url = 'https://maven.neoforged.net/releases' }
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        url = 'https://maven.blamejared.com'
+    }
+    flatDir { dirs 'runtime-mods' }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    compileOnly fg.deobf("maven.modrinth:sophisticated-core:${sophisticated_core_version}")
+    compileOnly fg.deobf("maven.modrinth:sophisticated-backpacks:${sophisticated_backpacks_version}")
+    compileOnly fg.deobf("curse.maven:applied-energistics-2-${ae2_curse_id}:${ae2_file_id}")
+    compileOnly fg.deobf("curse.maven:refinedstorage-${rs_curse_id}:${rs_file_id}")
+    compileOnly fg.deobf("curse.maven:toms-storage-${ts_curse_id}:${ts_file_id}")
+    compileOnly fg.deobf("curse.maven:beyonddimensions-${bd_curse_id}:${bd_file_id}")
+    compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge:${jei_version}")
+    compileOnly fg.deobf("curse.maven:emi-${emi_curse_id}:${emi_file_id}")
+
+    compileOnly "org.spongepowered:mixin:0.8.5"
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : mod_id,
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.version,
+                'MixinConfigs'            : "${mod_id}.mixins.json,${mod_id}.emi.mixins.json,${mod_id}.ae2.mixins.json,${mod_id}.rs.mixins.json,${mod_id}.ts.mixins.json,${mod_id}.bd.mixins.json"
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            mod_version: mod_version,
+            mod_description: mod_description,
+            forge_version_range: forge_version_range,
+            minecraft_version_range: minecraft_version_range
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
