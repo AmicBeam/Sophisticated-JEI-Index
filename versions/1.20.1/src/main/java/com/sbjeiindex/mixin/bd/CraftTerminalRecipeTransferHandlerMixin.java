@@ -75,4 +75,3 @@ public class CraftTerminalRecipeTransferHandlerMixin {
         cir.setReturnValue(error);
     }
 }
-

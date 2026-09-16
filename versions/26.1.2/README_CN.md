@@ -1,5 +1,7 @@
 # Sophisticated JEI Index
 
+> 本目录是 `main` 分支中的 Minecraft 26.1.2 工程。统一版本矩阵、构建方式及 JEI 兼容范围见[仓库说明](../../README_CN.md)。
+
 **其他语言版本： [English](README.md)**
 
 为 Sophisticated Backpacks 添加一个 JEI 索引升级（JEI Index Upgrade）。安装后，JEI 的配方转移会在考虑玩家物品栏的同时，额外从“按顺位匹配到的所有启用该升级的背包”中取材料。
@@ -14,9 +16,9 @@
 
 ## 依赖
 
-本项目按 MC/加载器版本拆分分支维护：
+所有 Minecraft/加载器版本统一在 `main` 分支的独立目录中维护：
 
-- **Forge（Minecraft 1.20.1）**：使用分支 `forge-1.20.1`
+- **Forge（Minecraft 1.20.1）**：使用目录 `versions/1.20.1`
   - Minecraft 1.20.1
   - Forge 47.x
   - Sophisticated Core 1.20.1-1.3.6+（Sophisticated Backpacks 的前置）
@@ -24,7 +26,7 @@
   - JEI 15.x（Just Enough Items，Forge）
   - EMI（可选）
   - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
-- **NeoForge（Minecraft 1.21.x）**：使用分支 `neoforge-1.21.1`
+- **NeoForge（Minecraft 1.21.x）**：使用目录 `versions/1.21.1`
   - Minecraft 1.21.x
   - NeoForge 21.1+
   - Sophisticated Core 1.21.1-1.4.89+（Sophisticated Backpacks 的前置）
@@ -32,13 +34,13 @@
   - JEI 19.44.0.403+（Just Enough Items，NeoForge）
   - EMI（可选）
   - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
-- **NeoForge（Minecraft 26.1.2）**：使用分支 `neoforge-26.1.2`
+- **NeoForge（Minecraft 26.1.2）**：使用目录 `versions/26.1.2`
   - Minecraft 26.1.2
   - NeoForge 26.1.2.71+
   - Java 25
   - Sophisticated Core 26.1.2-1.4.76+
   - Sophisticated Backpacks 26.1.2-3.25.76+
-  - JEI 29.37.0.98+（Just Enough Items，NeoForge）
+  - JEI 29.20.0.60+（Just Enough Items，NeoForge）
   - AE2 26.1.x、Refined Storage 3.2.x、Beyond Dimensions 0.7.24+ 和 Tom's Storage 26.1 为可选联动
   - EMI 尚未发布兼容 26.1.2 的 NeoForge 构建，本分支暂不默认打包 EMI 联动
 

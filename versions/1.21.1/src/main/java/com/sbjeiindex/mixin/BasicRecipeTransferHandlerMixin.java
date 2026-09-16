@@ -28,6 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Coerce;
+import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -57,11 +58,13 @@ public class BasicRecipeTransferHandlerMixin {
     @Shadow(remap = false)
     private IRecipeTransferInfo transferInfo;
 
+    @Group(name = "sbjeiindex_transfer_entry", min = 1)
     @Inject(
         method = "transferRecipe(Lnet/minecraft/world/inventory/AbstractContainerMenu;Ljava/lang/Object;Lmezz/jei/api/gui/ingredient/IRecipeSlotsView;Lnet/minecraft/world/entity/player/Player;ZZ)Lmezz/jei/api/recipe/transfer/IRecipeTransferError;",
         at = @At("HEAD"),
         cancellable = true,
-        remap = false
+        remap = false,
+        require = 0
     )
     private void sbjeiindex_transferRecipeLegacy(
         AbstractContainerMenu container,
@@ -77,6 +80,7 @@ public class BasicRecipeTransferHandlerMixin {
         );
     }
 
+    @Group(name = "sbjeiindex_transfer_entry", min = 1)
     @Inject(
         method = "transferRecipe(Lmezz/jei/api/recipe/transfer/IRecipeTransferContext;Z)Lmezz/jei/api/recipe/transfer/IRecipeTransferError;",
         at = @At("HEAD"),
@@ -90,7 +94,7 @@ public class BasicRecipeTransferHandlerMixin {
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
         try {
-            Class<?> contextClass = context.getClass();
+            Class<?> contextClass = Class.forName("mezz.jei.api.recipe.transfer.IRecipeTransferContext");
             AbstractContainerMenu container = (AbstractContainerMenu) contextClass.getMethod("getContainer").invoke(context);
             Object recipe = contextClass.getMethod("getRecipe").invoke(context);
             IRecipeSlotsView recipeSlotsView = (IRecipeSlotsView) contextClass.getMethod("getRecipeSlots").invoke(context);

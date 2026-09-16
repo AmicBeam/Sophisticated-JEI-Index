@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.concurrent.CompletableFuture;
 
 @Pseudo
-@Mixin(targets = "mezz.jei.common.network.packets.PacketRecipeTransfer", remap = false)
-public class PacketRecipeTransferMixin {
+@Mixin(targets = "mezz.jei.common.network.packets.legacy.PacketRecipeTransfer", remap = false)
+public class LegacyPacketRecipeTransferMixin {
     @Inject(method = "readPacketData", at = @At("HEAD"), cancellable = true, remap = false)
     private static void sbjeiindex_read(ServerPacketData data, CallbackInfoReturnable<CompletableFuture<Void>> cir) {
         cir.setReturnValue(JeiForgePacketReader.read(data, false, false));

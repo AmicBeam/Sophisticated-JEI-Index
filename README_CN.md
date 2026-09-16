@@ -12,7 +12,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | [`versions/1.20.1`](versions/1.20.1) | 1.20.1 | Forge 47.x | 17 | `b5653c3`（`forge-1.20.1`） | 否 | 是 |
 | [`versions/1.21.1`](versions/1.21.1) | 1.21.1 | NeoForge 21.1+ | 21 | `c302040`（`neoforge-1.21.1`） | 否 | 是 |
-| [`versions/26.1.2`](versions/26.1.2) | 26.1.2 | NeoForge 26.1.2.71+ | 25 | `4d246dc`（`neoforge-26.1.2`） | 是（Inception，需保留） | 否（`include_emi_compat=false`） |
+| [`versions/26.1.2`](versions/26.1.2) | 26.1.2 | NeoForge 26.1.2.71+ | 25 | `4d246dc`（`neoforge-26.1.2`） | 是（Inception） | 否（`include_emi_compat=false`） |
 
 所有版本都有的配置：
 
@@ -24,7 +24,7 @@
 - 支持 Sophisticated Backpacks 的 Inception Upgrade 暴露出的内层背包材料，前提是外层已启用 JEI 索引升级且 Sophisticated Backpacks 配置允许外层升级访问内层背包。
 - `backpackSlotIdStride`（common）：用于控制每个索引背包来源预留的虚拟槽位 ID 空间。若某个 Inception 组合暴露的槽位数超过默认值，可调大该值；多人游戏中客户端和服务端必须保持一致。
 
-精确来源提交和已知版本差异见 [docs/multiversion-migration.md](docs/multiversion-migration.md)。这次布局迁移没有改动 gameplay / JEI 行为。
+精确来源提交和已知版本差异见 [docs/multiversion-migration.md](docs/multiversion-migration.md)。目录迁移保留原有功能；后续 JEI 向下兼容适配与验证范围见 [JEI 兼容说明](docs/jei-compatibility.md)。
 
 ## 功能
 
@@ -43,7 +43,7 @@
 - Java 17
 - Sophisticated Core 1.20.1-1.3.6+（Sophisticated Backpacks 的前置）
 - Sophisticated Backpacks 3.24+
-- JEI 15.58.0.209+（Just Enough Items，Forge）
+- JEI 15.49.0.188+（Just Enough Items，Forge）
 - EMI（可选）
 - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
 
@@ -54,7 +54,7 @@
 - Java 21
 - Sophisticated Core 1.21.1-1.4.89+
 - Sophisticated Backpacks 1.21.1-3.25.78+
-- JEI 19.53.0.426+（Just Enough Items，NeoForge）
+- JEI 19.44.0.403+（Just Enough Items，NeoForge）
 - EMI（可选）
 - Curios（可选：仅在需要使用 Curios 饰品栏放背包时需要）
 
@@ -65,7 +65,7 @@
 - Java 25
 - Sophisticated Core 26.1.2-1.4.76+
 - Sophisticated Backpacks 26.1.2-3.25.76+
-- JEI 29.37.0.98+（Just Enough Items，NeoForge）
+- JEI 29.20.0.60+（Just Enough Items，NeoForge）
 - AE2 26.1.x、Refined Storage 3.2.x、Beyond Dimensions 0.7.24+ 和 Tom's Storage 26.1 为可选联动
 - EMI 尚未发布兼容 26.1.2 的 NeoForge 构建，本版本暂不默认打包 EMI 联动
 

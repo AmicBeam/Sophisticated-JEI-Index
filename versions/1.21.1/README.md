@@ -1,5 +1,7 @@
 # Sophisticated JEI Index
 
+> This is the Minecraft 1.21.1 project on `main`. See the [repository overview](../../README.md) for the version matrix, builds, and JEI compatibility.
+
 **Read this in other languages: [简体中文](README_CN.md)**
 
 Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe transfer can pull ingredients from equipped backpacks that have this upgrade enabled (in selection order), in addition to the player inventory.
@@ -14,9 +16,9 @@ Adds a JEI Index Upgrade for Sophisticated Backpacks. When installed, JEI recipe
 
 ## Requirements
 
-This project maintains separate branches per Minecraft/loader version:
+All Minecraft/loader versions are maintained on `main` in independent directories:
 
-- **Forge (Minecraft 1.20.1)**: use branch `forge-1.20.1`
+- **Forge (Minecraft 1.20.1)**: use directory `versions/1.20.1`
   - Minecraft 1.20.1
   - Forge 47.x
   - Sophisticated Core 1.20.1-1.3.6+ (required by Sophisticated Backpacks)
@@ -24,12 +26,12 @@ This project maintains separate branches per Minecraft/loader version:
   - JEI 15.x (Just Enough Items, Forge)
   - EMI (optional)
   - Curios (optional, only needed if you want Curios slot support)
-- **NeoForge (Minecraft 1.21.x)**: use branch `neoforge-1.21.1`
+- **NeoForge (Minecraft 1.21.x)**: use directory `versions/1.21.1`
   - Minecraft 1.21.x
   - NeoForge 21.1+
   - Sophisticated Core 1.21.1-1.4.89+
   - Sophisticated Backpacks 1.21.1-3.25.78+
-  - JEI 19.53.0.426+ (Just Enough Items, NeoForge)
+  - JEI 19.44.0.403+ (Just Enough Items, NeoForge)
   - EMI (optional)
   - Curios (optional, only needed if you want Curios slot support)
 

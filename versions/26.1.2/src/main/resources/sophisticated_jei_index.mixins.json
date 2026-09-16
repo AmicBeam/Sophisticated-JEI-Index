@@ -9,8 +9,12 @@
     "BasicRecipeTransferHandlerMixin"
   ],
   "mixins": [
-    "PacketRecipeTransferCountedMixin",
     "PacketRecipeTransferMixin",
+    "PacketRecipeTransferCountedMixin",
+    "LegacyPacketRecipeTransferMixin",
+    "LegacyPacketRecipeTransferCountedMixin",
+    "PacketRecipeTransferWithResultMixin",
+    "PacketRecipeTransferCountedWithResultMixin",
     "RecipeTransferUtilMixin",
     "TransferOperationMixin"
   ]

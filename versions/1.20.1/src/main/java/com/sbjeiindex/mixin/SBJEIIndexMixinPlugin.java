@@ -11,7 +11,19 @@ import java.util.Set;
 public class SBJEIIndexMixinPlugin implements IMixinConfigPlugin {
     @Override public void onLoad(String mixinPackage) {}
     @Override public String getRefMapperConfig() { return null; }
-    @Override public boolean shouldApplyMixin(String targetClassName, String mixinClassName) { return true; }
+    @Override
+    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (!targetClassName.startsWith("mezz.jei.common.network.packets.")) {
+            return true;
+        }
+        // Query bytecode without loading a target before Mixin transforms it.
+        try {
+            return org.spongepowered.asm.service.MixinService.getService()
+                .getBytecodeProvider().getClassNode(targetClassName) != null;
+        } catch (ClassNotFoundException | java.io.IOException e) {
+            return false;
+        }
+    }
     @Override public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}
     @Override public List<String> getMixins() { return null; }
     @Override public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}

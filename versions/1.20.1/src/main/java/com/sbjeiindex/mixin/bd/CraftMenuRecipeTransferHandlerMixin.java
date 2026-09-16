@@ -75,4 +75,3 @@ public class CraftMenuRecipeTransferHandlerMixin {
         cir.setReturnValue(error);
     }
 }
-

@@ -24,7 +24,7 @@ Shared config on every version:
 - Nested backpacks exposed by Sophisticated Backpacks' Inception Upgrade are supported when the outer indexed backpack can access them.
 - `backpackSlotIdStride` (common): virtual slot-id space reserved for each indexed backpack source. Increase it if an Inception setup exposes more slots than the default. Multiplayer clients and servers must use the same value.
 
-See [docs/multiversion-migration.md](docs/multiversion-migration.md) for the exact extracted commits and remaining version-specific differences. Gameplay/JEI behavior was not changed as part of this layout migration.
+See [docs/multiversion-migration.md](docs/multiversion-migration.md) for the exact extracted commits and remaining version-specific differences. The layout migration preserved existing features. Subsequent JEI adaptations and their validation limits are documented in [JEI compatibility](docs/jei-compatibility.md).
 
 ## Features
 
@@ -43,7 +43,7 @@ See [docs/multiversion-migration.md](docs/multiversion-migration.md) for the exa
 - Java 17
 - Sophisticated Core 1.20.1-1.3.6+ (required by Sophisticated Backpacks)
 - Sophisticated Backpacks 3.24+
-- JEI 15.58.0.209+ (Just Enough Items, Forge)
+- JEI 15.49.0.188+ (Just Enough Items, Forge)
 - EMI (optional)
 - Curios (optional, only needed if you want Curios slot support)
 
@@ -54,7 +54,7 @@ See [docs/multiversion-migration.md](docs/multiversion-migration.md) for the exa
 - Java 21
 - Sophisticated Core 1.21.1-1.4.89+
 - Sophisticated Backpacks 1.21.1-3.25.78+
-- JEI 19.53.0.426+ (Just Enough Items, NeoForge)
+- JEI 19.44.0.403+ (Just Enough Items, NeoForge)
 - EMI (optional)
 - Curios (optional, only needed if you want Curios slot support)
 
@@ -65,7 +65,7 @@ See [docs/multiversion-migration.md](docs/multiversion-migration.md) for the exa
 - Java 25
 - Sophisticated Core 26.1.2-1.4.76+
 - Sophisticated Backpacks 26.1.2-3.25.76+
-- JEI 29.37.0.98+ (Just Enough Items, NeoForge)
+- JEI 29.20.0.60+ (Just Enough Items, NeoForge)
 - AE2 26.1.x, Refined Storage 3.2.x, Beyond Dimensions 0.7.24+, and Tom's Storage 26.1 are optional integrations
 - EMI integration is disabled on this version until EMI publishes a compatible 26.1.2 NeoForge build
 

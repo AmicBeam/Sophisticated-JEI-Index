@@ -1,7 +1,7 @@
 package com.sbjeiindex.jei;
 
 import mezz.jei.common.network.ServerPacketContext;
-import mezz.jei.common.network.packets.PlayToClientPacket;
+import mezz.jei.common.network.packets.PacketJei;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,7 +23,7 @@ public final class JeiRecipeTransferResultSender {
         }
         try {
             Object result = RESULT_PACKET.newInstance(transferId, success);
-            context.connection().sendPacketToClient((PlayToClientPacket) result, context.player());
+            context.connection().sendPacketToClient((PacketJei) result, context.player());
         } catch (ReflectiveOperationException | ClassCastException e) {
             LOGGER.error("Unable to send JEI recipe transfer result", e);
         }

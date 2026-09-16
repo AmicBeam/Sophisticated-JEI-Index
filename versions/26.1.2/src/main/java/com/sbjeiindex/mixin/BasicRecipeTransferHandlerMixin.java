@@ -3,6 +3,7 @@ package com.sbjeiindex.mixin;
 import com.sbjeiindex.jei.BackpackSnapshotCache;
 import com.sbjeiindex.jei.BackpackTransferSlot;
 import com.sbjeiindex.jei.JeiSlotResolver;
+import com.sbjeiindex.jei.JeiRecipeTransferPacketCompat;
 import com.sbjeiindex.jei.JeiTransferConstants;
 import com.sbjeiindex.jei.OffsetItemHandlerModifiable;
 import com.sbjeiindex.util.BackpackHelper;
@@ -15,10 +16,6 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.common.network.IConnectionToServer;
-import mezz.jei.common.network.packets.PacketRecipeTransferWithResult;
-import mezz.jei.common.network.packets.PacketRecipeTransferResult;
-import mezz.jei.api.recipe.transfer.IRecipeTransferContext;
-import mezz.jei.common.network.packets.PacketRecipeTransferCountedWithResult;
 import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.library.transfer.BasicRecipeTransferHandler;
@@ -28,11 +25,14 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.Coerce;
+import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,15 +54,65 @@ public class BasicRecipeTransferHandlerMixin {
     @Shadow(remap = false)
     private IRecipeTransferInfo transferInfo;
 
-    @Inject(method = "transferRecipeInternal", at = @At("HEAD"), cancellable = true, remap = false)
-    private void sbjeiindex_transferRecipe(
+    @Group(name = "sbjeiindex_transfer_entry", min = 1)
+    @Inject(
+        method = "transferRecipe(Lnet/minecraft/world/inventory/AbstractContainerMenu;Ljava/lang/Object;Lmezz/jei/api/gui/ingredient/IRecipeSlotsView;Lnet/minecraft/world/entity/player/Player;ZZ)Lmezz/jei/api/recipe/transfer/IRecipeTransferError;",
+        at = @At("HEAD"),
+        cancellable = true,
+        remap = false,
+        require = 0
+    )
+    private void sbjeiindex_transferRecipeLegacy(
         AbstractContainerMenu container,
         Object recipe,
         IRecipeSlotsView recipeSlotsView,
         Player player,
         boolean maxTransfer,
         boolean doTransfer,
-        IRecipeTransferContext<?, ?> transferContext,
+        CallbackInfoReturnable<IRecipeTransferError> cir
+    ) {
+        sbjeiindex_transferRecipeWithBackpacks(
+            container, recipe, recipeSlotsView, player, maxTransfer, doTransfer, null, cir
+        );
+    }
+
+    @Group(name = "sbjeiindex_transfer_entry", min = 1)
+    @Inject(
+        method = "transferRecipe(Lmezz/jei/api/recipe/transfer/IRecipeTransferContext;Z)Lmezz/jei/api/recipe/transfer/IRecipeTransferError;",
+        at = @At("HEAD"),
+        cancellable = true,
+        remap = false,
+        require = 0
+    )
+    private void sbjeiindex_transferRecipeWithContext(
+        @Coerce Object context,
+        boolean doTransfer,
+        CallbackInfoReturnable<IRecipeTransferError> cir
+    ) {
+        try {
+            Class<?> contextClass = Class.forName("mezz.jei.api.recipe.transfer.IRecipeTransferContext");
+            AbstractContainerMenu container = (AbstractContainerMenu) contextClass.getMethod("getContainer").invoke(context);
+            Object recipe = contextClass.getMethod("getRecipe").invoke(context);
+            IRecipeSlotsView recipeSlotsView = (IRecipeSlotsView) contextClass.getMethod("getRecipeSlots").invoke(context);
+            Player player = (Player) contextClass.getMethod("getPlayer").invoke(context);
+            boolean maxTransfer = (boolean) contextClass.getMethod("isMaxTransfer").invoke(context);
+            sbjeiindex_transferRecipeWithBackpacks(
+                container, recipe, recipeSlotsView, player, maxTransfer, doTransfer, context, cir
+            );
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            org.apache.logging.log4j.LogManager.getLogger().error("Unable to read JEI recipe transfer context", e);
+            cir.setReturnValue(handlerHelper.createInternalError());
+        }
+    }
+
+    private void sbjeiindex_transferRecipeWithBackpacks(
+        AbstractContainerMenu container,
+        Object recipe,
+        IRecipeSlotsView recipeSlotsView,
+        Player player,
+        boolean maxTransfer,
+        boolean doTransfer,
+        @Nullable Object transferContext,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
         List<IndexedBackpackHandler> indexedBackpackHandlers = BackpackHelper.getIndexedEquippedBackpackItemHandlersWithJEIIndexUpgrade(player);
@@ -222,33 +272,12 @@ public class BasicRecipeTransferHandlerMixin {
 
             if (doTransfer) {
                 boolean requireCompleteSets = transferInfo.requireCompleteSets(container, recipe);
-                boolean counted = requiresCountedTransferPacket(transferOperations.results);
-                if (!serverConnection.canSendPacket(counted
-                    ? PacketRecipeTransferCountedWithResult.TYPE : PacketRecipeTransferWithResult.TYPE)) {
+                if (!JeiRecipeTransferPacketCompat.send(
+                    serverConnection, transferOperations.results, craftingSlots, extendedInventorySlots,
+                    maxTransfer, requireCompleteSets, requiresCountedTransferPacket(transferOperations.results), transferContext
+                )) {
                     cir.setReturnValue(handlerHelper.createInternalError());
                     return;
-                }
-                if (transferContext != null) PacketRecipeTransferResult.registerPendingRecipeTransfer(transferContext);
-                if (counted) {
-                    PacketRecipeTransferCountedWithResult packet = PacketRecipeTransferCountedWithResult.fromSlots(
-                        transferOperations.results,
-                        craftingSlots,
-                        extendedInventorySlots,
-                        maxTransfer,
-                        requireCompleteSets,
-                        transferContext == null ? 0 : transferContext.getTransferId()
-                    );
-                    serverConnection.sendPacketToServer(packet);
-                } else {
-                    PacketRecipeTransferWithResult packet = PacketRecipeTransferWithResult.fromSlots(
-                        transferOperations.results,
-                        craftingSlots,
-                        extendedInventorySlots,
-                        maxTransfer,
-                        requireCompleteSets,
-                        transferContext == null ? 0 : transferContext.getTransferId()
-                    );
-                    serverConnection.sendPacketToServer(packet);
                 }
             }
         } finally {

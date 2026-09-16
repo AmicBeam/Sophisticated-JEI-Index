@@ -61,10 +61,14 @@ These differences already existed on the source commits. This migration copied t
 
 ## Intentionally changed files
 
-Byte-for-byte copies of the extracted commits live under versions/<mc>/. Files that are supposed to differ from those snapshots are limited to repository-root layout, documentation, and scripts:
+Commit `f1c1e3b` contains byte-for-byte copies of the extracted commits under versions/<mc>/. Later commits may adapt JEI compatibility; see [jei-compatibility.md](jei-compatibility.md). Files that are supposed to differ from those snapshots are limited to repository-root layout, documentation, and scripts:
 
 - Root README.md and README_CN.md now describe the version matrix and independent builds.
 - New AGENTS.md, docs/multiversion-migration.md, and scripts/build_all_versions.sh.
 - Root version-specific Gradle/source files were relocated into versions/1.21.1 rather than remaining at the repository root.
 
 Historical branch refs were left untouched.
+
+## Validation of the migration
+
+All 215 tracked source-snapshot files matched their historical blobs before compatibility edits. All three independent projects built successfully with JDK 17/21/25 using cached dependencies. Local build outputs were not copied between projects or committed.

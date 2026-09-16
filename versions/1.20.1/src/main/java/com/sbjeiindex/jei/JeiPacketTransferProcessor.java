@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -154,7 +154,7 @@ public final class JeiPacketTransferProcessor {
         }
 
         int encoded = slotIndex - JeiTransferConstants.BACKPACK_SLOT_ID_OFFSET;
-        int stride = JeiTransferConstants.getBackpackSlotIdStride();
+        int stride = JeiTransferConstants.BACKPACK_SLOT_ID_STRIDE;
         int backpackIndex = encoded / stride;
         int innerSlot = encoded % stride;
         IItemHandlerModifiable handler = backpackHandlers.get(backpackIndex);
