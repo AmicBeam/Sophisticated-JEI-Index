@@ -2,7 +2,7 @@
 """Check compiled SJI's direct JEI JVM symbols against one real JEI jar.
 
 This is a linkage check, not a Minecraft/Mixin runtime or gameplay test.
-Usage: python3 tests/check_jei_binary_compat.py versions/1.21.1 /path/to/jei.jar
+Usage: python3 tests/check_jei_binary_compat.py versions/1.21.1 /path/to/jei.jar [sji.jar]
 """
 import re
 import struct
@@ -77,6 +77,13 @@ class ClassFile:
 
 def main():
     project, jar = Path(sys.argv[1]), Path(sys.argv[2])
+    if len(sys.argv) > 3:
+        with zipfile.ZipFile(sys.argv[3]) as archive:
+            compiled = {name[:-6]: archive.read(name) for name in archive.namelist()
+                        if name.endswith('.class')}
+    else:
+        compiled = {str(path.relative_to(project / 'build/classes/java/main'))[:-6]: path.read_bytes()
+                    for path in (project / 'build/classes/java/main').rglob('*.class')}
     with zipfile.ZipFile(jar) as archive:
         jei = {name[:-6]: ClassFile(archive.read(name)) for name in archive.namelist()
                if name.startswith('mezz/jei/') and name.endswith('.class')}
@@ -92,8 +99,8 @@ def main():
             return True
         return any(has_member(p, signature, is_field, seen) for p in cls.parents)
 
-    for path in sorted((project / 'build/classes/java/main').rglob('*.class')):
-        cls = ClassFile(path.read_bytes())
+    for name, data in sorted(compiled.items()):
+        cls = ClassFile(data)
         source = project / 'src/main/java' / (cls.name.split('$')[0] + '.java')
         text = source.read_text() if source.exists() else ''
         target = re.search(r'@Mixin\(targets\s*=\s*"(mezz\.jei\.[^"]+)"', text)
@@ -135,9 +142,9 @@ def main():
         if target_name not in jei:
             continue
         methods = jei[target_name].methods
-        compiled_path = project / 'build/classes/java/main/com/sbjeiindex/mixin' / (source.stem + '.class')
-        if compiled_path.exists():
-            mixin = ClassFile(compiled_path.read_bytes())
+        compiled_name = 'com/sbjeiindex/mixin/' + source.stem
+        if compiled_name in compiled:
+            mixin = ClassFile(compiled[compiled_name])
             shadows = re.findall(r'@Shadow[^;{}]+?\b(\w+)\s*;', text, re.S)
             for field in mixin.fields:
                 if field[0] in shadows and field not in jei[target_name].fields:

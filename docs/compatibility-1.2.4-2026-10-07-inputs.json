@@ -1,0 +1,154 @@
+{
+  "checked_on": "2026-10-07",
+  "timezone": "Asia/Shanghai",
+  "source_commit": "7a9a065d50a99d5d50c62cd21169b585559427b8",
+  "selection": "latest published Modrinth version matching exact Minecraft and loader, including beta",
+  "dependencies": [
+    {
+      "mc": "1.20.1",
+      "loader": "forge",
+      "project": "jei",
+      "latest": "15.62.0.219",
+      "type": "beta",
+      "published": "2026-10-04T12:38:59.580407Z",
+      "id": "uyTkeINn",
+      "api_url": "https://api.modrinth.com/v2/project/jei/version?game_versions=%5B%221.20.1%22%5D&loaders=%5B%22forge%22%5D",
+      "page_url": "https://modrinth.com/mod/jei/version/uyTkeINn",
+      "sha512": "572918aad9d26b3308e99ba83b154644b15818519e1f8206e9a22022ff0888c62b4d8016edf806e96f238e839e41a45a4eaa9868d45ae4514bf8f91164533c68",
+      "filename": "jei-1.20.1-forge-15.62.0.219.jar",
+      "download_url": "https://cdn.modrinth.com/data/u6dRKJwZ/versions/uyTkeINn/jei-1.20.1-forge-15.62.0.219.jar"
+    },
+    {
+      "mc": "1.20.1",
+      "loader": "forge",
+      "project": "sophisticated-backpacks",
+      "latest": "1.20.1-3.26.9.2194",
+      "type": "release",
+      "published": "2026-10-06T20:59:47.874004Z",
+      "id": "nSVHlIzZ",
+      "api_url": "https://api.modrinth.com/v2/project/sophisticated-backpacks/version?game_versions=%5B%221.20.1%22%5D&loaders=%5B%22forge%22%5D",
+      "page_url": "https://modrinth.com/mod/sophisticated-backpacks/version/nSVHlIzZ",
+      "sha512": "6d78f290fd4acb5e856da8e7f105d626fbb8d416439b2676f89f4239b56f3c146c1bd9df2a2119a07df24904bc4a598eeb8c17389424f75d18845564f01b9c98",
+      "filename": "sophisticatedbackpacks-1.20.1-3.26.9.2194.jar",
+      "download_url": "https://cdn.modrinth.com/data/TyCTlI4b/versions/nSVHlIzZ/sophisticatedbackpacks-1.20.1-3.26.9.2194.jar"
+    },
+    {
+      "mc": "1.20.1",
+      "loader": "forge",
+      "project": "sophisticated-core",
+      "latest": "1.20.1-1.5.6.2378",
+      "type": "release",
+      "published": "2026-10-06T20:51:35.073039Z",
+      "id": "yIBA2SnN",
+      "api_url": "https://api.modrinth.com/v2/project/sophisticated-core/version?game_versions=%5B%221.20.1%22%5D&loaders=%5B%22forge%22%5D",
+      "page_url": "https://modrinth.com/mod/sophisticated-core/version/yIBA2SnN",
+      "sha512": "6a2246e61f0180368bb93ce0992209bef887f37b640a0ddec771b00b0dcdbc299ae0399675163a8f75297f7e6205d8bed8bb12e76ed5bbbd9c5c0eda3805bf1a",
+      "filename": "sophisticatedcore-1.20.1-1.5.6.2378.jar",
+      "download_url": "https://cdn.modrinth.com/data/nmoqTijg/versions/yIBA2SnN/sophisticatedcore-1.20.1-1.5.6.2378.jar"
+    },
+    {
+      "mc": "1.21.1",
+      "loader": "neoforge",
+      "project": "jei",
+      "latest": "19.57.0.451",
+      "type": "beta",
+      "published": "2026-10-05T09:37:02.548052Z",
+      "id": "RI8WCow6",
+      "api_url": "https://api.modrinth.com/v2/project/jei/version?game_versions=%5B%221.21.1%22%5D&loaders=%5B%22neoforge%22%5D",
+      "page_url": "https://modrinth.com/mod/jei/version/RI8WCow6",
+      "sha512": "fe1f0d431135e91123e3b2acb33ff7d3e3690520c797fee5976d08f399052cba35bc79b8a3f425e431b97a9651e160d8e22c9a2502d80730f28ba5ae5467b31c",
+      "filename": "jei-1.21.1-neoforge-19.57.0.451.jar",
+      "download_url": "https://cdn.modrinth.com/data/u6dRKJwZ/versions/RI8WCow6/jei-1.21.1-neoforge-19.57.0.451.jar"
+    },
+    {
+      "mc": "1.21.1",
+      "loader": "neoforge",
+      "project": "sophisticated-backpacks",
+      "latest": "1.21.1-3.26.9.2195",
+      "type": "release",
+      "published": "2026-10-06T21:02:12.613871Z",
+      "id": "1pYxRkKq",
+      "api_url": "https://api.modrinth.com/v2/project/sophisticated-backpacks/version?game_versions=%5B%221.21.1%22%5D&loaders=%5B%22neoforge%22%5D",
+      "page_url": "https://modrinth.com/mod/sophisticated-backpacks/version/1pYxRkKq",
+      "sha512": "b9f41c5e3a8fa08d71bf1606c6b1115c58abb19638e9b211fb842120a09bb78b6ed28163a45240d25240580157adb1d893eb62fcaeba381a6540fd9d6eda1a23",
+      "filename": "sophisticatedbackpacks-1.21.1-3.26.9.2195.jar",
+      "download_url": "https://cdn.modrinth.com/data/TyCTlI4b/versions/1pYxRkKq/sophisticatedbackpacks-1.21.1-3.26.9.2195.jar"
+    },
+    {
+      "mc": "1.21.1",
+      "loader": "neoforge",
+      "project": "sophisticated-core",
+      "latest": "1.21.1-1.5.7.2381",
+      "type": "release",
+      "published": "2026-10-06T20:52:17.675876Z",
+      "id": "p09oohxN",
+      "api_url": "https://api.modrinth.com/v2/project/sophisticated-core/version?game_versions=%5B%221.21.1%22%5D&loaders=%5B%22neoforge%22%5D",
+      "page_url": "https://modrinth.com/mod/sophisticated-core/version/p09oohxN",
+      "sha512": "900c0c59d8340c8e707f843ead5c2b26d230744a7c6a532d0988c5d341a8494029aa292c17cd1806e1ec87945492cfd60ac4e21134f37f8d031422b5802df2e6",
+      "filename": "sophisticatedcore-1.21.1-1.5.7.2381.jar",
+      "download_url": "https://cdn.modrinth.com/data/nmoqTijg/versions/p09oohxN/sophisticatedcore-1.21.1-1.5.7.2381.jar"
+    },
+    {
+      "mc": "26.1.2",
+      "loader": "neoforge",
+      "project": "jei",
+      "latest": "29.43.0.107",
+      "type": "beta",
+      "published": "2026-10-05T09:31:19.452323Z",
+      "id": "bEulRYY2",
+      "api_url": "https://api.modrinth.com/v2/project/jei/version?game_versions=%5B%2226.1.2%22%5D&loaders=%5B%22neoforge%22%5D",
+      "page_url": "https://modrinth.com/mod/jei/version/bEulRYY2",
+      "sha512": "abf545dab1163218701874289a296731a93067a7e8571024798b4f9439b1b21297383e01d491fd0a23b5d9795d8db7e8419c7e142dd90424ec1777ac5174ac5c",
+      "filename": "jei-26.1.2-neoforge-29.43.0.107.jar",
+      "download_url": "https://cdn.modrinth.com/data/u6dRKJwZ/versions/bEulRYY2/jei-26.1.2-neoforge-29.43.0.107.jar"
+    },
+    {
+      "mc": "26.1.2",
+      "loader": "neoforge",
+      "project": "sophisticated-backpacks",
+      "latest": "26.1.2-3.26.9.2193",
+      "type": "release",
+      "published": "2026-10-06T20:53:46.772381Z",
+      "id": "thjFLz7b",
+      "api_url": "https://api.modrinth.com/v2/project/sophisticated-backpacks/version?game_versions=%5B%2226.1.2%22%5D&loaders=%5B%22neoforge%22%5D",
+      "page_url": "https://modrinth.com/mod/sophisticated-backpacks/version/thjFLz7b",
+      "sha512": "4d50eaf776d81c44aa870b3d86858e715555dbb15b114e571ece31fc5d2048feb4791846845eb316edb0358395f43c356eca8d5b6b30cbf14c73be68b556b486",
+      "filename": "sophisticatedbackpacks-26.1.2-3.26.9.2193.jar",
+      "download_url": "https://cdn.modrinth.com/data/TyCTlI4b/versions/thjFLz7b/sophisticatedbackpacks-26.1.2-3.26.9.2193.jar"
+    },
+    {
+      "mc": "26.1.2",
+      "loader": "neoforge",
+      "project": "sophisticated-core",
+      "latest": "26.1.2-1.5.7.2377",
+      "type": "release",
+      "published": "2026-10-06T20:49:15.178277Z",
+      "id": "MKrSdHBA",
+      "api_url": "https://api.modrinth.com/v2/project/sophisticated-core/version?game_versions=%5B%2226.1.2%22%5D&loaders=%5B%22neoforge%22%5D",
+      "page_url": "https://modrinth.com/mod/sophisticated-core/version/MKrSdHBA",
+      "sha512": "bf1ef1b7c275bee760ab8b0530b124bc2596a8cf15f759b8969d9599acedc242e084a7cdf657ea38da09dd6f6d04b96f567c3b2aaa3d81cd3044229cab7fb233",
+      "filename": "sophisticatedcore-26.1.2-1.5.7.2377.jar",
+      "download_url": "https://cdn.modrinth.com/data/nmoqTijg/versions/MKrSdHBA/sophisticatedcore-26.1.2-1.5.7.2377.jar"
+    }
+  ],
+  "sji_artifacts": [
+    {
+      "minecraft": "1.20.1",
+      "filename": "sophisticated_jei_index-1.2.4+1.20.1.jar",
+      "size": 102620,
+      "sha256": "02fecc3b1bd019a657b94999e08f7e2cce55f2426095f7a376ea4d719dc90583"
+    },
+    {
+      "minecraft": "1.21.1",
+      "filename": "sophisticated_jei_index-1.2.4+1.21.1.jar",
+      "size": 112309,
+      "sha256": "d1650756cbeb750c68dedc099656818d59a44a2ebf54c83473d9cef96bc319ae"
+    },
+    {
+      "minecraft": "26.1.2",
+      "filename": "sophisticated_jei_index-1.2.4+26.1.2.jar",
+      "size": 91686,
+      "sha256": "87c025f6b20f18f932a814ff4acd33beb6555c5c917a5f2394c97bd4263a3a73"
+    }
+  ]
+}
