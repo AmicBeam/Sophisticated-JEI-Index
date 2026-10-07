@@ -50,6 +50,7 @@ All Minecraft/loader versions are maintained on `main` in independent directorie
 
 ## Notes
 
+- Version 1.2.5 supports linked-backpack snapshots after the SB 3.26 API moved into Sophisticated Core, while retaining the earlier SB API. See [compatibility verification](../../docs/linked-backpack-compat-1.2.5.md).
 - JEI recipe transfer is a client action that sends a request to the server. For full functionality in multiplayer, JEI must be present on the server as well.
 - EMI recipe fill is a client action that sends a request to the server. For full functionality in multiplayer, EMI must be present on the server as well.
 - The backpack selection order follows Sophisticated Backpacks' B-key logic, but only backpacks with this upgrade enabled are considered.

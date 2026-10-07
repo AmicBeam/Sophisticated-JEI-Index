@@ -36,6 +36,12 @@ references still resolve. It does not prove client synchronization or recipe-fil
 behavior. See [the 2026-10-07 verification](../docs/compatibility-1.2.4-2026-10-07.md)
 for a reproduced failure with the latest 1.21.1 SB.
 
+The 1.21.1 1.2.5 bridge supports the legacy SB snapshot/request pair and the
+relocated Core pair. The checker uses the artifact's actual class-name strings
+when selecting applicable contracts, so an original 1.2.4 jar still fails with
+the latest SB. See [the 1.2.5 checks](../docs/linked-backpack-compat-1.2.5.md) and
+the development-only [linked snapshot probe](probes/LinkedBackpackCompatProbe.java).
+
 This does **not** exercise Mixin transformation, networking, inventory mutation,
 or gameplay. Before publishing compatibility claims, test client and dedicated
 server with the same JEI version: ordinary and Shift recipe fill, missing items,

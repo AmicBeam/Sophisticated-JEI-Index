@@ -100,9 +100,19 @@ def main():
         require_method(CORE + 'linkedstorage/LinkedStorageEndpointData', ('groupId', '()Ljava/util/UUID;'))
         require_method(SB + 'backpack/wrapper/BackpackLinkedStorageResolver',
                        ('resolve', '(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;)Ljava/util/Optional;'))
-        require_method(SB + 'backpack/wrapper/ClientLinkedStorageBackpackContents',
-                       ('getRevision', '(Ljava/util/UUID;)Ljava/util/Optional;'))
-        require_method(SB + 'network/RequestLinkedStorageBackpackContentsPayload', ('<init>', '(Ljava/util/UUID;J)V'))
+        bridge_strings = {entry[1] for cls in compiled.values() for entry in cls.cp[1:]
+                          if entry is not None and entry[0] == 1}
+        legacy_pair = (SB + 'backpack/wrapper/ClientLinkedStorageBackpackContents',
+                       SB + 'network/RequestLinkedStorageBackpackContentsPayload')
+        core_pair = (CORE + 'linkedstorage/ClientLinkedStorageContents',
+                     CORE + 'linkedstorage/RequestLinkedStorageContentsPayload')
+        # Keep older SB resolvers on their legacy pair; use Core after relocation.
+        # Do not accept Core classes for an old artifact that never probes them.
+        core_supported = all(name.replace('/', '.') in bridge_strings for name in core_pair)
+        legacy_present = all(name in dependency for name in legacy_pair)
+        contents, request = core_pair if core_supported and not legacy_present else legacy_pair
+        require_method(contents, ('getRevision', '(Ljava/util/UUID;)Ljava/util/Optional;'))
+        require_method(request, ('<init>', '(Ljava/util/UUID;J)V'))
 
     for failure in sorted(missing):
         print('LINKAGE:', failure)

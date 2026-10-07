@@ -108,10 +108,19 @@ public final class LinkedBackpackClientCompat {
                 Class<?> resolverClass = Class.forName("net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.BackpackLinkedStorageResolver");
                 Method resolve = resolverClass.getMethod("resolve", Level.class, ItemStack.class);
 
-                Class<?> clientContentsClass = Class.forName("net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.ClientLinkedStorageBackpackContents");
+                Class<?> clientContentsClass;
+                Class<?> requestClass;
+                try {
+                    // Keep older SB resolvers on their own cache even if a newer Core is installed.
+                    // Resolve both classes together so revision reads and requests use the same API.
+                    clientContentsClass = Class.forName("net.p3pp3rf1y.sophisticatedbackpacks.backpack.wrapper.ClientLinkedStorageBackpackContents");
+                    requestClass = Class.forName("net.p3pp3rf1y.sophisticatedbackpacks.network.RequestLinkedStorageBackpackContentsPayload");
+                } catch (ClassNotFoundException e) {
+                    // Linked snapshots moved from Backpacks into Core in newer 3.26 releases.
+                    clientContentsClass = Class.forName("net.p3pp3rf1y.sophisticatedcore.linkedstorage.ClientLinkedStorageContents");
+                    requestClass = Class.forName("net.p3pp3rf1y.sophisticatedcore.linkedstorage.RequestLinkedStorageContentsPayload");
+                }
                 Method getRevision = clientContentsClass.getMethod("getRevision", UUID.class);
-
-                Class<?> requestClass = Class.forName("net.p3pp3rf1y.sophisticatedbackpacks.network.RequestLinkedStorageBackpackContentsPayload");
                 Constructor<?> requestConstructor = requestClass.getConstructor(UUID.class, long.class);
                 return new Support(endpointComponent, groupId, resolve, getRevision, requestConstructor);
             } catch (ClassNotFoundException | NoSuchFieldException e) {

@@ -1,5 +1,9 @@
 # 1.2.4 latest-dependency verification — 2026-10-07
 
+The 1.21.1 linked-backpack failure recorded below is fixed in the subsequent
+[1.2.5 compatibility update](linked-backpack-compat-1.2.5.md). This report retains
+the original 1.2.4 artifact results.
+
 ## Result
 
 **Full compatibility across all three versions is not established.** The existing

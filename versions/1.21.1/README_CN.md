@@ -50,6 +50,7 @@
 
 ## 说明
 
+- 1.2.5 适配 SB 3.26 将链接背包快照接口迁入 Sophisticated Core 的变化，并保留旧版 SB 接口支持。详见[兼容验证记录](../../docs/linked-backpack-compat-1.2.5.md)。
 - JEI 配方转移需要向服务端发送请求。多人游戏中为了完整功能，服务端也需要安装 JEI。
 - EMI 配方转移需要向服务端发送请求。多人游戏中为了完整功能，服务端也需要安装 EMI。
 - 背包的判定顺序与 Sophisticated Backpacks 的 B 键逻辑一致，仅筛选启用该升级的背包。
