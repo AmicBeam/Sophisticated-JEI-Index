@@ -1,4 +1,4 @@
-# Minecraft 1.21.1 linked-backpack compatibility — 1.2.5
+# Minecraft 1.21.1 linked-backpack compatibility — rebuilt 1.2.4
 
 ## Fix
 
@@ -6,7 +6,7 @@ Newer Sophisticated Backpacks moved its client linked-storage snapshot cache and
 request payload into Sophisticated Core. The 1.2.4 bridge stopped detecting
 linked backpacks after its two SB classes disappeared.
 
-The 1.21.1 1.2.5 bridge resolves the cache and request class as a pair:
+The rebuilt 1.21.1 1.2.4 bridge resolves the cache and request class as a pair:
 
 1. If the original SB pair exists, use it. This also keeps older SB resolvers on
    their own cache when a newer Core is installed.
@@ -17,8 +17,12 @@ The revision lookup and `(UUID, long)` request constructor remain reflective,
 preserving compatibility with earlier SB/Core installations. Existing snapshot
 polling, pending resolution, and request throttling behavior are unchanged.
 
-This release changes only the Minecraft 1.21.1 implementation/version. Artifact:
-`sophisticated_jei_index-1.2.5+1.21.1.jar`. The release build uses the repository's
+The linked API fix is limited to the Minecraft 1.21.1 implementation. All three
+Minecraft artifacts retain version 1.2.4. The rebuilt 1.21.1 artifact is
+`sophisticated_jei_index-1.2.4+1.21.1.jar` and includes the fix from `5e2b83a`.
+This replaces the original 1.2.4 build that failed the linked API checks.
+Its SHA-256 is `87d8997c36950771b2660d71e95abe5ed111f0cfc3e2e8ce1b37ee98eb66f521`.
+The release build uses the repository's
 original dependency pins to avoid introducing a direct link to newer Core APIs.
 
 ## Validation — 2026-10-07
